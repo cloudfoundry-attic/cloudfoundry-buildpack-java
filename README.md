@@ -1,0 +1,1 @@
+Buildpack plugin for deploying exploded Java WAR files.
