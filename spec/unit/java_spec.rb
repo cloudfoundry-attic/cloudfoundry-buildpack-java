@@ -33,6 +33,8 @@ describe "Java Language Pack" do
 
     it "should create a .profile.d with Java in PATH and JAVA_HOME set" do
       java_pack = LanguagePack::Java.new(tmpdir)
+      # TODO pass in Mock
+      java_pack.stub(:install_java)
       java_pack.compile
       script_body = File.read(File.join(tmpdir, ".profile.d", "java.sh"))
       script_body.should include <<-EXPECTED
@@ -43,9 +45,13 @@ export PATH="$HOME/.jdk/bin:$PATH"
 
     it "should create a .profile.d with heap size and tmpdir in JAVA_OPTS" do
       java_pack = LanguagePack::Java.new(tmpdir)
+      # TODO pass in Mock
+      java_pack.stub(:install_java)
       java_pack.compile
       script_body = File.read(File.join(tmpdir, ".profile.d", "java.sh"))
-      script_body.should include("export JAVA_OPTS=${JAVA_OPTS:--Xmx$MEMORY_LIMIT -Xms$MEMORY_LIMIT -Djava.io.tmpdir=$TMPDIR}")
+      script_body.should include("-Xmx$MEMORY_LIMIT")
+      script_body.should include("-Xms$MEMORY_LIMIT")
+      script_body.should include("-Djava.io.tmpdir=$TMPDIR")
     end
 
     it "should somehow support debug mode" do
@@ -58,7 +64,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
     it "should not return default process types" do
       LanguagePack::Java.new(tmpdir).release.should == {
           "addons" => [],
-          "config_vars" => [],
+          "config_vars" => {},
           "default_process_types" => {}
       }.to_yaml
     end

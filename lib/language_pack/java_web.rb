@@ -1,14 +1,20 @@
 require "language_pack/java"
+require "fileutils"
 
 # TODO logging
 module LanguagePack
   class JavaWeb < Java
 
     TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz"
+    MYSQL_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=mysql/mysql-connector-java/5.1.12/mysql-connector-java-5.1.12.jar"
+    POSTGRES_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4.jar"
 
     def self.use?
-      # TODO this assumes WAR is getting unzipped.  Safe assumption w/out custom vmc?
-      File.exists?("WEB-INF/web.xml")
+      File.exists?("WEB-INF/web.xml") || File.exists?("webapps/ROOT/WEB-INF/web.xml")
+    end
+
+    def name
+      "Java Web"
     end
 
     def compile
@@ -18,9 +24,9 @@ module LanguagePack
         remove_tomcat_files
         copy_webapp_to_tomcat
         move_tomcat_to_root
-        #install_database_drivers
+        install_database_drivers
         #install_insight
-        configure_server_xml
+        copy_resources
         setup_profiled
       end
     end
@@ -40,8 +46,17 @@ module LanguagePack
       end
     end
 
+    def install_database_drivers
+      Dir.chdir("lib") do
+        puts "Downloading MySQL Driver: #{MYSQL_DRIVER_URL}"
+        run("curl --silent --location #{MYSQL_DRIVER_URL} --remote-name")
+        puts "Downloading Postgres Driver: #{POSTGRES_DRIVER_URL}"
+        run("curl --silent --location #{POSTGRES_DRIVER_URL} --remote-name")
+      end
+    end
+
     def remove_tomcat_files
-      %w[NOTICE RELEASE-NOTES RUNNING.txt LICENSE temp/. webapps/. work/.].each do |file|
+      %w[NOTICE RELEASE-NOTES RUNNING.txt LICENSE temp/. webapps/. work/. logs].each do |file|
         FileUtils.rm_rf("#{tomcat_dir}/#{file}")
       end
     end
@@ -53,19 +68,28 @@ module LanguagePack
     def copy_webapp_to_tomcat
       # TODO would be easier if app weren't already expanded in root dir
       run("mkdir #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
+      # Move the logs dir and tmp dir created by staging back to the root level
+      run("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
+      run("mv #{tomcat_dir}/webapps/ROOT/tmp ./tmp")
     end
 
     def move_tomcat_to_root
       run("mv #{tomcat_dir}/* . && rm -rf #{tomcat_dir}")
     end
 
-    def configure_server_xml
-      FileUtils.cp(File.expand_path('../../../resources/server.xml', __FILE__), "conf")
+    def copy_resources
+      # Configure server.xml with variable HTTP port and context.xml with custom startup listener
+      # TODO get startup listener jar from URL
+      run("cp -r #{File.expand_path('../../../resources', __FILE__)}/* #{build_path}")
     end
 
-    def setup_profiled
-      super
-      #TODO JAVA_OPTS from super + http.port
+    def java_opts
+      # TODO proxy settings?
+      super.merge(
+        {
+            "-Dhttp.port=" => "$VCAP_APP_PORT"
+
+        })
     end
 
     def default_process_types

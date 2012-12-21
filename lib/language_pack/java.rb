@@ -1,4 +1,5 @@
 require "yaml"
+require "fileutils"
 
 module LanguagePack
   class Java
@@ -8,6 +9,7 @@ module LanguagePack
 
     def self.use?
       # TODO detect standalone Java apps
+      false
     end
 
     attr_reader :build_path, :cache_path
@@ -18,6 +20,10 @@ module LanguagePack
     def initialize(build_path, cache_path=nil)
       @build_path = build_path
       @cache_path = cache_path
+    end
+
+    def name
+      "Java"
     end
 
     def compile
@@ -66,7 +72,7 @@ module LanguagePack
     def release
       {
           "addons" => [],
-          "config_vars" => [],
+          "config_vars" => {},
           "default_process_types" => default_process_types
       }.to_yaml
     end
