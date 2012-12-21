@@ -14,7 +14,7 @@ describe "JavaWeb Language Pack" do
   end
 
   after do
-    #FileUtils.rm_r(@tmpdir) if @tmpdir
+    FileUtils.rm_r(@tmpdir) if @tmpdir
   end
 
   describe "detect" do
@@ -75,7 +75,6 @@ describe "JavaWeb Language Pack" do
     end
 
     it "should copy app to webapp ROOT but leave staging logs dir and delete tmp dir" do
-      puts tmpdir
       # TODO pass in Mock
       @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
