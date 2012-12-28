@@ -50,7 +50,6 @@ describe "JavaWeb Language Pack" do
         File.open("WEB-INF/web.xml", 'w') {|f| f.write("what") }
         Dir.mkdir("logs")
         File.open("logs/staging.log", 'w') {|f| f.write("some staging") }
-        Dir.mkdir("tmp")
       end
     end
 
@@ -74,7 +73,7 @@ describe "JavaWeb Language Pack" do
       end
     end
 
-    it "should copy app to webapp ROOT but leave staging logs dir and delete tmp dir" do
+    it "should copy app to webapp ROOT but leave staging logs dir" do
       # TODO pass in Mock
       @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
@@ -82,7 +81,6 @@ describe "JavaWeb Language Pack" do
       File.exists?(web_xml).should == true
       File.read(web_xml).should == "what"
       File.exists?(File.join(tmpdir,"logs","staging.log")).should == true
-      File.exists?(File.join(tmpdir,"tmp")).should == true
     end
 
     it "should copy MySQL and Postgres drivers to Tomcat lib dir" do
@@ -100,7 +98,7 @@ describe "JavaWeb Language Pack" do
 
     end
 
-    it "should create a .profile.d with proxy sys props, connector port, tmpdir, and heap size in JAVA_OPTS" do
+    it "should create a .profile.d with proxy sys props, connector port, and heap size in JAVA_OPTS" do
       # TODO pass in Mock
       @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
@@ -110,7 +108,7 @@ describe "JavaWeb Language Pack" do
       script.should include("-Xmx$MEMORY_LIMIT")
       script.should include("-Xms$MEMORY_LIMIT")
       script.should include ("-Dhttp.port=$VCAP_APP_PORT")
-      script.should include("-Djava.io.tmpdir=$TMPDIR")
+      script.should_not include("-Djava.io.tmpdir=$TMPDIR")
     end
 
     it "should add template server.xml to Tomcat for configuration of web port" do

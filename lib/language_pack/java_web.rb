@@ -66,11 +66,9 @@ module LanguagePack
     end
 
     def copy_webapp_to_tomcat
-      # TODO would be easier if app weren't already expanded in root dir
       run("mkdir #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
-      # Move the logs dir and tmp dir created by staging back to the root level
+      # Move the logs dir created by staging back to the root level
       run("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
-      run("mv #{tomcat_dir}/webapps/ROOT/tmp ./tmp")
     end
 
     def move_tomcat_to_root
@@ -85,11 +83,14 @@ module LanguagePack
 
     def java_opts
       # TODO proxy settings?
-      super.merge(
+      # Don't override Tomcat's temp dir setting
+      opts = super.merge(
         {
             "-Dhttp.port=" => "$VCAP_APP_PORT"
 
         })
+      opts.delete("-Djava.io.tmpdir=")
+      opts
     end
 
     def default_process_types
