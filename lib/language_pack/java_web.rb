@@ -78,7 +78,7 @@ module LanguagePack
     def copy_resources
       # Configure server.xml with variable HTTP port and context.xml with custom startup listener
       # TODO get startup listener jar from URL
-      run("cp -r #{File.expand_path('../../../resources', __FILE__)}/* #{build_path}")
+      run("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
     end
 
     def java_opts
