@@ -9,7 +9,7 @@ module LanguagePack
   def self.detect(*args)
     Dir.chdir(args.first)
 
-    pack = [ JavaWeb, Java ].detect do |klass|
+    pack = [ Spring, JavaWeb, Java ].detect do |klass|
       klass.use?
     end
 
@@ -20,5 +20,6 @@ end
 
 require "language_pack/java"
 require "language_pack/java_web"
+require "language_pack/spring"
 
 
