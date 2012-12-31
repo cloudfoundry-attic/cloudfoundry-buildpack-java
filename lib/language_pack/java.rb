@@ -8,8 +8,7 @@ module LanguagePack
     JDK_URL_1_6="https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk6-u25-heroku-temaki.tar.gz"
 
     def self.use?
-      # TODO detect standalone Java apps
-      false
+      Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
     end
 
     attr_reader :build_path, :cache_path

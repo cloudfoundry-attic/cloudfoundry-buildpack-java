@@ -16,7 +16,41 @@ describe "Java Language Pack" do
   end
 
   describe "detect" do
-    # TODO detect standalone java
+    it "should detect a Java app by recursive presence of a jar file" do
+      Dir.chdir(tmpdir) do
+        FileUtils.mkdir_p(File.join(tmpdir,"lib"))
+        FileUtils.touch(File.join(tmpdir,"lib","foo.jar"))
+        LanguagePack::Java.use?.should == true
+      end
+    end
+
+    it "should detect a Java app by presence of a jar file in root dir" do
+      Dir.chdir(tmpdir) do
+        FileUtils.touch(File.join(tmpdir,"foo.jar"))
+        LanguagePack::Java.use?.should == true
+      end
+    end
+
+    it "should detect a Java app by recursive presence of a class file" do
+      Dir.chdir(tmpdir) do
+        FileUtils.mkdir_p(File.join(tmpdir,"lib"))
+        FileUtils.touch(File.join(tmpdir,"lib","foo.class"))
+        LanguagePack::Java.use?.should == true
+      end
+    end
+
+    it "should detect a Java app by presence of a class file in root dir" do
+      Dir.chdir(tmpdir) do
+        FileUtils.touch(File.join(tmpdir,"foo.class"))
+        LanguagePack::Java.use?.should == true
+      end
+    end
+
+    it "should not detect a Java app if no jar or class files" do
+      Dir.chdir(tmpdir) do
+        LanguagePack::Java.use?.should == false
+      end
+    end
   end
 
   describe "compile" do
