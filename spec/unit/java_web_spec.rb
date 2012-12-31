@@ -22,7 +22,7 @@ describe "JavaWeb Language Pack" do
     it "should be used if web.xml present" do
       Dir.chdir(tmpdir) do
         Dir.mkdir("WEB-INF")
-        File.open("#{tmpdir}/WEB-INF/web.xml", 'w') {|f| f.write("what") }
+        FileUtils.touch "WEB-INF/web.xml"
         LanguagePack::JavaWeb.use?.should == true
       end
     end
@@ -30,7 +30,7 @@ describe "JavaWeb Language Pack" do
     it "should be used if web.xml is present in installed Tomcat dir" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF")
-        File.open("#{tmpdir}/webapps/ROOT/WEB-INF/web.xml", 'w') {|f| f.write("what") }
+        FileUtils.touch "webapps/ROOT/WEB-INF/web.xml"
         LanguagePack::JavaWeb.use?.should == true
       end
     end
@@ -47,9 +47,9 @@ describe "JavaWeb Language Pack" do
     before do
       Dir.chdir(tmpdir) do
         Dir.mkdir("WEB-INF")
-        File.open("WEB-INF/web.xml", 'w') {|f| f.write("what") }
+        FileUtils.touch "WEB-INF/web.xml"
         Dir.mkdir("logs")
-        File.open("logs/staging.log", 'w') {|f| f.write("some staging") }
+        FileUtils.touch "logs/staging.log"
       end
     end
 
@@ -79,7 +79,6 @@ describe "JavaWeb Language Pack" do
       java_web_pack.compile
       web_xml = File.join(tmpdir,"webapps","ROOT", "WEB-INF", "web.xml")
       File.exists?(web_xml).should == true
-      File.read(web_xml).should == "what"
       File.exists?(File.join(tmpdir,"logs","staging.log")).should == true
     end
 
@@ -101,6 +100,7 @@ describe "JavaWeb Language Pack" do
     it "should create a .profile.d with proxy sys props, connector port, and heap size in JAVA_OPTS" do
       # TODO pass in Mock
       @java_web_pack.stub(:install_database_drivers)
+      @java_web_pack.stub(:install_tomcat)
       java_web_pack.compile
       profiled = File.join(tmpdir,".profile.d","java.sh")
       File.exists?(profiled).should == true

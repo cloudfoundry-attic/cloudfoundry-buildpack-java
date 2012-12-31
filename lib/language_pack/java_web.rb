@@ -66,7 +66,7 @@ module LanguagePack
     end
 
     def copy_webapp_to_tomcat
-      run("mkdir #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
+      run("mkdir -p #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
       # Move the logs dir created by staging back to the root level
       run("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
     end
@@ -97,6 +97,10 @@ module LanguagePack
       {
         "web" => "./bin/catalina.sh run"
       }
+    end
+
+    def webapp_path
+      File.join(build_path,"webapps","ROOT")
     end
   end
 end
