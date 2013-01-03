@@ -3,14 +3,17 @@ require "nokogiri"
 module LanguagePack
   class WebXmlConfig
     CONTEXT_CONFIG_LOCATION = "contextConfigLocation".freeze
+    CONTEXT_INITIALIZER_CLASSES = "contextInitializerClasses".freeze
+    ANNOTATION_CONTEXT_CLASS = "org.springframework.web.context.support.AnnotationConfigWebApplicationContext".freeze
 
-    attr_reader :default_app_context_location, :context_params, :servlet_params, :prefix
+    attr_reader :default_app_context_location, :context_params, :servlet_params, :default_servlet_context_locations
 
-    def initialize(web_xml, default_app_context_location, context_params, servlet_params)
+    def initialize(web_xml, default_app_context_location, context_params, servlet_params,  default_servlet_context_locations={})
       @parsed_xml = Nokogiri::XML(web_xml)
       @default_app_context_location = default_app_context_location
       @context_params = context_params
       @servlet_params = servlet_params
+      @default_servlet_context_locations = default_servlet_context_locations
     end
 
     def xml
@@ -20,35 +23,77 @@ module LanguagePack
     def configure_autostaging_context_param
       context_config_location_node = @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
       if context_config_location_node
-        update_context_value context_config_location_node
+        update_param_value context_config_location_node, autostaging_context_param_value
       elsif default_app_context_location
-        context_param_node = Nokogiri::XML::Node.new 'context-param', @parsed_xml
-        add_name_value_pair(context_param_node, CONTEXT_CONFIG_LOCATION, "#{default_app_context_location} #{context_params[:contextConfigLocation]}")
-        @parsed_xml.root.add_child context_param_node
+        add_param_node @parsed_xml.root, "context-param", CONTEXT_CONFIG_LOCATION, "#{default_app_context_location} #{autostaging_context_param_value}"
+      end
+    end
+
+    def configure_springenv_context_param
+      context_param_node =  @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_INITIALIZER_CLASSES}'))]").first
+      if context_param_node
+        update_param_value context_param_node, context_params[:contextInitializerClasses], ", "
+      else
+        add_param_node @parsed_xml.root, "context-param", CONTEXT_INITIALIZER_CLASSES, context_params[:contextInitializerClasses]
+      end
+    end
+
+    def configure_autostaging_servlet
+      dispatcher_servlet_nodes = @parsed_xml.xpath("//servlet[contains(normalize-space(servlet-class), normalize-space('#{servlet_params[:dispatcherServletClass]}'))]")
+      if dispatcher_servlet_nodes
+        dispatcher_servlet_nodes.each do |dispatcher_servlet_node|
+          dispatcher_servlet_name = dispatcher_servlet_node.xpath("servlet-name").first.content.strip
+          init_param_node = dispatcher_servlet_node.xpath("init-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
+          if init_param_node
+            update_param_value init_param_node, autostaging_init_param_value
+          elsif default_servlet_context_locations && default_servlet_context_locations[dispatcher_servlet_name]
+            add_param_node dispatcher_servlet_node, "init-param", CONTEXT_CONFIG_LOCATION, "#{default_servlet_context_locations[dispatcher_servlet_name]} #{autostaging_init_param_value}"
+          else
+            add_param_node dispatcher_servlet_node, "init-param", CONTEXT_CONFIG_LOCATION, autostaging_init_param_value
+          end
+        end
       end
     end
 
     private
-    def add_name_value_pair(parent, name, value)
-      context_param_name_node = Nokogiri::XML::Node.new 'param-name', @parsed_xml
-      context_param_name_node.content = name
-      parent.add_child context_param_name_node
+    def add_param_node(parent, node_name, name, value)
+      param_node = Nokogiri::XML::Node.new node_name, @parsed_xml
 
-      context_param_value_node = Nokogiri::XML::Node.new 'param-value', @parsed_xml
-      context_param_value_node.content = value
-      parent.add_child context_param_value_node
+      param_name_node = Nokogiri::XML::Node.new 'param-name', @parsed_xml
+      param_name_node.content = name
+      param_node.add_child param_name_node
+
+      param_value_node = Nokogiri::XML::Node.new 'param-value', @parsed_xml
+      param_value_node.content = value
+      param_node.add_child param_value_node
+
+      parent.add_child param_node
     end
 
-    def update_context_value(node)
-      context_param_value = node.xpath("param-value").first.content
-      return if context_param_value.split.include?(context_params[:contextConfigLocation]) || context_param_value == ''
+    def update_param_value(node, new_value, separator=" ")
+      value_node = node.xpath("param-value").first
+      old_value = value_node.content
+      return if old_value.split.include?(new_value) || old_value == ''
 
-      node.xpath("param-value").first.unlink
-      context_param_value << " #{context_params[:contextConfigLocation]}"
+      value_node.content += "#{separator}#{new_value}"
+    end
 
-      context_param_value_node = Nokogiri::XML::Node.new 'param-value', @parsed_xml
-      context_param_value_node.content = context_param_value
-      node.add_child context_param_value_node
+    def autostaging_context_param_value
+      contextClass = @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('contextClass'))]")
+      if contextClass.xpath("param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+        context_params[:contextConfigLocationAnnotationConfig]
+      else
+        context_params[:contextConfigLocation]
+      end
+    end
+
+    def autostaging_init_param_value
+      contextClass = @parsed_xml.xpath("//servlet/init-param[contains(normalize-space(param-name), normalize-space('contextClass'))]")
+      if contextClass.xpath("param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+        context_params[:contextConfigLocationAnnotationConfig]
+      else
+        context_params[:contextConfigLocation]
+      end
     end
   end
 end
