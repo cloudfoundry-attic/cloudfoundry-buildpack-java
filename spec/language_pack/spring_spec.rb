@@ -1,13 +1,10 @@
-require "tmpdir"
-require "language_pack/spring"
-require "rspec"
+require "spec_helper"
 
 CLOUD_APPLICATION_CONTEXT_INITIALIZER = 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'
 CLOUD_APP_ANNOTATION_CONFIG_CLASS = 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig'
 AUTOSTAGING_JAR = "auto-reconfiguration-0.6.5.jar"
 
-describe "Spring Language Pack" do
-
+describe LanguagePack::Spring do
   attr_reader :tmpdir, :spring_pack
 
   before do
@@ -22,18 +19,19 @@ describe "Spring Language Pack" do
   end
 
   describe "detect" do
+    subject { LanguagePack::Spring.use? }
 
     it "should be used if Spring class is present" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/classes/org/springframework")
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
     it "should be used if Spring class is present in installed Tomcat dir" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/classes/org/springframework")
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
@@ -41,7 +39,7 @@ describe "Spring Language Pack" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.touch "WEB-INF/lib/spring-core-2.5.6.jar"
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
@@ -49,7 +47,7 @@ describe "Spring Language Pack" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
         FileUtils.touch "webapps/ROOT/WEB-INF/lib/spring-core-2.5.6.jar"
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
@@ -57,7 +55,7 @@ describe "Spring Language Pack" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.touch "WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
@@ -65,13 +63,13 @@ describe "Spring Language Pack" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
         FileUtils.touch "webapps/ROOT/WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
-        LanguagePack::Spring.use?.should == true
+        should eq true
       end
     end
 
     it "should not be used if no Spring classes or jars" do
       Dir.chdir(tmpdir) do
-        LanguagePack::Spring.use?.should == false
+        should eq false
       end
     end
 

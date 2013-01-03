@@ -1,8 +1,6 @@
-require "rspec"
-require "tmpdir"
-require "language_pack/java_web"
+require "spec_helper"
 
-describe "JavaWeb Language Pack" do
+describe LanguagePack::JavaWeb do
 
   attr_reader :tmpdir, :java_web_pack
 

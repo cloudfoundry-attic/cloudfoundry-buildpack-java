@@ -10,6 +10,16 @@ module LanguagePack
     DEFAULT_SERVLET_CONTEXT_SUFFIX = "-servlet.xml"
     ANNOTATION_CONTEXT_CLASS = "org.springframework.web.context.support.AnnotationConfigWebApplicationContext"
 
+    CONTEXT_PARAMS = {
+        contextConfigLocation: 'classpath:META-INF/cloud/cloudfoundry-auto-reconfiguration-context.xml',
+        contextConfigLocationAnnotationConfig: 'org.cloudfoundry.reconfiguration.spring.web.CloudAppAnnotationConfigAutoReconfig',
+        contextInitializerClasses: 'org.cloudfoundry.reconfiguration.spring.CloudApplicationContextInitializer'
+    }.freeze
+
+    SERVLET = {
+        dispatcherServletClass: "org.springframework.web.servlet.DispatcherServlet"
+    }.freeze
+
     def self.use?
       spring_files_found = (Dir.glob("WEB-INF/classes/org/springframework").any? ||
           Dir.glob("WEB-INF/lib/spring-core*.jar").any? || Dir.glob("WEB-INF/lib/org.springframework.core*.jar").any?)

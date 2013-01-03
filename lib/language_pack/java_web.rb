@@ -5,9 +5,10 @@ require "fileutils"
 module LanguagePack
   class JavaWeb < Java
 
-    TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz"
-    MYSQL_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=mysql/mysql-connector-java/5.1.12/mysql-connector-java-5.1.12.jar"
-    POSTGRES_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4.jar"
+    TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz".freeze
+    MYSQL_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=mysql/mysql-connector-java/5.1.12/mysql-connector-java-5.1.12.jar".freeze
+    POSTGRES_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4.jar".freeze
+    WEBAPP_DIR = "webapps/ROOT/".freeze
 
     def self.use?
       File.exists?("WEB-INF/web.xml") || File.exists?("webapps/ROOT/WEB-INF/web.xml")

@@ -4,8 +4,8 @@ require "fileutils"
 module LanguagePack
   class Java
 
-    DEFAULT_JDK_VERSION="1.6"
-    JDK_URL_1_6="https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk6-u25-heroku-temaki.tar.gz"
+    DEFAULT_JDK_VERSION = "1.6".freeze
+    JDK_URL_1_6 = "https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk6-u25-heroku-temaki.tar.gz".freeze
 
     def self.use?
       Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?

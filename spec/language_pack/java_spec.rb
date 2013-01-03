@@ -1,8 +1,6 @@
-require "rspec"
-require "tmpdir"
-require "language_pack/java"
+require "spec_helper"
 
-describe "Java Language Pack" do
+describe LanguagePack::Java do
 
   # TODO factor to helper?
   attr_reader :tmpdir
