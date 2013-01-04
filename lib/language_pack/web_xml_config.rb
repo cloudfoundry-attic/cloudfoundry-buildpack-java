@@ -6,7 +6,7 @@ module LanguagePack
     CONTEXT_INITIALIZER_CLASSES = "contextInitializerClasses".freeze
     ANNOTATION_CONTEXT_CLASS = "org.springframework.web.context.support.AnnotationConfigWebApplicationContext".freeze
 
-    attr_reader :default_app_context_location, :context_params, :servlet_params, :default_servlet_context_locations
+    attr_reader :default_app_context_location, :context_params, :servlet_params, :default_servlet_context_locations, :prefix
 
     def initialize(web_xml, default_app_context_location, context_params, servlet_params,  default_servlet_context_locations={})
       @parsed_xml = Nokogiri::XML(web_xml)
@@ -14,6 +14,7 @@ module LanguagePack
       @context_params = context_params
       @servlet_params = servlet_params
       @default_servlet_context_locations = default_servlet_context_locations
+      @prefix = namespace_prefix
     end
 
     def xml
@@ -21,7 +22,7 @@ module LanguagePack
     end
 
     def configure_autostaging_context_param
-      context_config_location_node = @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
+      context_config_location_node = @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
       if context_config_location_node
         update_param_value context_config_location_node, autostaging_context_param_value
       elsif default_app_context_location
@@ -30,7 +31,7 @@ module LanguagePack
     end
 
     def configure_springenv_context_param
-      context_param_node =  @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_INITIALIZER_CLASSES}'))]").first
+      context_param_node =  @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_INITIALIZER_CLASSES}'))]").first
       if context_param_node
         update_param_value context_param_node, context_params[:contextInitializerClasses], ", "
       else
@@ -39,11 +40,11 @@ module LanguagePack
     end
 
     def configure_autostaging_servlet
-      dispatcher_servlet_nodes = @parsed_xml.xpath("//servlet[contains(normalize-space(servlet-class), normalize-space('#{servlet_params[:dispatcherServletClass]}'))]")
+      dispatcher_servlet_nodes = @parsed_xml.xpath("//#{prefix}servlet[contains(normalize-space(#{prefix}servlet-class), normalize-space('#{servlet_params[:dispatcherServletClass]}'))]")
       if dispatcher_servlet_nodes
         dispatcher_servlet_nodes.each do |dispatcher_servlet_node|
-          dispatcher_servlet_name = dispatcher_servlet_node.xpath("servlet-name").first.content.strip
-          init_param_node = dispatcher_servlet_node.xpath("init-param[contains(normalize-space(param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
+          dispatcher_servlet_name = dispatcher_servlet_node.xpath("#{prefix}servlet-name").first.content.strip
+          init_param_node = dispatcher_servlet_node.xpath("#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
           if init_param_node
             update_param_value init_param_node, autostaging_init_param_value
           elsif default_servlet_context_locations && default_servlet_context_locations[dispatcher_servlet_name]
@@ -71,7 +72,7 @@ module LanguagePack
     end
 
     def update_param_value(node, new_value, separator=" ")
-      value_node = node.xpath("param-value").first
+      value_node = node.xpath("#{prefix}param-value").first
       old_value = value_node.content
       return if old_value.split.include?(new_value) || old_value == ''
 
@@ -79,8 +80,8 @@ module LanguagePack
     end
 
     def autostaging_context_param_value
-      contextClass = @parsed_xml.xpath("//context-param[contains(normalize-space(param-name), normalize-space('contextClass'))]")
-      if contextClass.xpath("param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+      contextClass = @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
+      if contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
         context_params[:contextConfigLocationAnnotationConfig]
       else
         context_params[:contextConfigLocation]
@@ -88,12 +89,25 @@ module LanguagePack
     end
 
     def autostaging_init_param_value
-      contextClass = @parsed_xml.xpath("//servlet/init-param[contains(normalize-space(param-name), normalize-space('contextClass'))]")
-      if contextClass.xpath("param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+      contextClass = @parsed_xml.xpath("//#{prefix}servlet/#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
+      if contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
         context_params[:contextConfigLocationAnnotationConfig]
       else
         context_params[:contextConfigLocation]
       end
+    end
+
+    def namespace_prefix
+      name_space = @parsed_xml.root.namespace
+      if name_space
+        puts name_space.to_s
+         if name_space.prefix
+           puts name_space.prefix
+           return name_space.prefix
+         end
+        return "xmlns:"
+      end
+      return ''
     end
   end
 end

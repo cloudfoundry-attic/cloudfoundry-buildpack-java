@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe LanguagePack::WebXmlConfig do
+shared_examples_for LanguagePack::WebXmlConfig  do
   let(:context_params) do
     {
         contextConfigLocation: 'SOME_RANDOM_CONTEXT_CONFIG_LOCATION',
@@ -18,20 +18,23 @@ describe LanguagePack::WebXmlConfig do
   let(:web_config) { LanguagePack::WebXmlConfig.new(xml, default_app_context_location, context_params, servlet_params, default_servlet_context_locations) }
   let(:mutated_xml) {  XmlSimple.xml_in(web_config.xml, 'ForceArray' => false, 'AttrPrefix' => true, 'KeepRoot' => true) }
 
-  describe '.new' do
-    let(:default_app_context_location) { 'foo/bar' }
-    let(:default_servlet_context_locations) { { "myservlet" => 'foo/my-servlet.xml'} }
-    let(:xml) { '<web-app></web-app>' }
 
-    subject { web_config }
+    describe '.new' do
+      let(:default_app_context_location) { 'foo/bar' }
+      let(:default_servlet_context_locations) { { "myservlet" => 'foo/my-servlet.xml'} }
+      let(:xml) { "<web-app#{namespace_declaration}></web-app>" }
 
-    its(:xml) { should include '<web-app' }
-    its(:xml) { should be_a String }
-    its(:context_params) { should eq context_params }
-    its(:servlet_params) { should eq servlet_params }
-    its(:default_app_context_location) { should eq default_app_context_location }
-    its(:default_servlet_context_locations) { should eq default_servlet_context_locations }
-  end
+      subject { web_config }
+
+      its(:xml) { should include '<web-app' }
+      its(:xml) { should be_a String }
+      its(:context_params) { should eq context_params }
+      its(:servlet_params) { should eq servlet_params }
+      its(:default_app_context_location) { should eq default_app_context_location }
+      its(:default_servlet_context_locations) { should eq default_servlet_context_locations }
+      its(:prefix) { should eq namespace}
+    end
+
 
   describe '#configure_autostaging_context_param' do
     let(:xml) { "<web-app></web-app>" }
@@ -445,4 +448,16 @@ describe LanguagePack::WebXmlConfig do
       end
     end
   end
+end
+
+describe "Web XML without namespace declarations" do
+  let(:namespace_declaration) {''}
+  let(:namespace) {''}
+  it_behaves_like LanguagePack::WebXmlConfig
+end
+
+describe "Web XML with namespace declarations" do
+  let(:namespace_declaration) {" version=\"2.5\" xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\""}
+  let(:namespace) {"xmlns:"}
+  it_behaves_like  LanguagePack::WebXmlConfig
 end
