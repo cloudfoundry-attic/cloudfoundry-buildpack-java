@@ -23,10 +23,11 @@ module LanguagePack
 
     def configure_autostaging_context_param
       context_config_location_node = @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
+      context_param = autostaging_param_value "#{prefix}context-param"
       if context_config_location_node
-        update_param_value context_config_location_node, autostaging_context_param_value
+        update_param_value context_config_location_node, context_param
       elsif default_app_context_location
-        add_param_node @parsed_xml.root, "context-param", CONTEXT_CONFIG_LOCATION, "#{default_app_context_location} #{autostaging_context_param_value}"
+        add_param_node @parsed_xml.root, "context-param", CONTEXT_CONFIG_LOCATION, "#{default_app_context_location} #{context_param}"
       end
     end
 
@@ -41,17 +42,17 @@ module LanguagePack
 
     def configure_autostaging_servlet
       dispatcher_servlet_nodes = @parsed_xml.xpath("//#{prefix}servlet[contains(normalize-space(#{prefix}servlet-class), normalize-space('#{servlet_params[:dispatcherServletClass]}'))]")
-      if dispatcher_servlet_nodes
-        dispatcher_servlet_nodes.each do |dispatcher_servlet_node|
-          dispatcher_servlet_name = dispatcher_servlet_node.xpath("#{prefix}servlet-name").first.content.strip
-          init_param_node = dispatcher_servlet_node.xpath("#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
-          if init_param_node
-            update_param_value init_param_node, autostaging_init_param_value
-          elsif default_servlet_context_locations && default_servlet_context_locations[dispatcher_servlet_name]
-            add_param_node dispatcher_servlet_node, "init-param", CONTEXT_CONFIG_LOCATION, "#{default_servlet_context_locations[dispatcher_servlet_name]} #{autostaging_init_param_value}"
-          else
-            add_param_node dispatcher_servlet_node, "init-param", CONTEXT_CONFIG_LOCATION, autostaging_init_param_value
-          end
+      return unless dispatcher_servlet_nodes
+
+      dispatcher_servlet_nodes.each do |dispatcher_servlet_node|
+        dispatcher_servlet_name = dispatcher_servlet_node.xpath("#{prefix}servlet-name").first.content.strip
+        init_param_node = dispatcher_servlet_node.xpath("#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('#{CONTEXT_CONFIG_LOCATION}'))]").first
+        init_param = autostaging_param_value "#{prefix}servlet/#{prefix}init-param"
+        if init_param_node
+          update_param_value init_param_node, init_param
+        else
+          init_param = "#{default_servlet_context_locations[dispatcher_servlet_name]} #{init_param}" if has_servlet_context_location?(dispatcher_servlet_name)
+          add_param_node dispatcher_servlet_node, "init-param", CONTEXT_CONFIG_LOCATION, init_param
         end
       end
     end
@@ -79,17 +80,8 @@ module LanguagePack
       value_node.content += "#{separator}#{new_value}"
     end
 
-    def autostaging_context_param_value
-      contextClass = @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
-      if context_params[:contextConfigLocationAnnotationConfig] && contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
-        context_params[:contextConfigLocationAnnotationConfig]
-      else
-        context_params[:contextConfigLocation]
-      end
-    end
-
-    def autostaging_init_param_value
-      contextClass = @parsed_xml.xpath("//#{prefix}servlet/#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
+    def autostaging_param_value(xpath)
+      contextClass = @parsed_xml.xpath("//#{xpath}[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
       if context_params[:contextConfigLocationAnnotationConfig] && contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
         context_params[:contextConfigLocationAnnotationConfig]
       else
@@ -100,12 +92,14 @@ module LanguagePack
     def namespace_prefix
       name_space = @parsed_xml.root.namespace
       if name_space
-         if name_space.prefix
-           return name_space.prefix
-         end
-        return "xmlns:"
+        name_space.prefix ? name_space.prefix : "xmlns:"
+      else
+        ''
       end
-      return ''
+    end
+
+    def has_servlet_context_location?(dispatcher_servlet_name)
+      default_servlet_context_locations && default_servlet_context_locations[dispatcher_servlet_name]
     end
   end
 end

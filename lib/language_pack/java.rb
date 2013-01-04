@@ -34,11 +34,14 @@ module LanguagePack
 
     def install_java
       FileUtils.mkdir_p jdk_dir
-      jdk_tarball="#{jdk_dir}/jdk.tar.gz"
+      jdk_tarball = "#{jdk_dir}/jdk.tar.gz"
+
       puts "Downloading JDK: #{jdk_download_url}"
-      run("curl --silent --location #{jdk_download_url} --output #{jdk_tarball}")
+      run_with_err_output "curl --silent --location #{jdk_download_url} --output #{jdk_tarball}"
+
       puts "Unpacking JDK to #{jdk_dir}"
-      run("tar pxzf #{jdk_tarball} -C #{jdk_dir}")
+      run_with_err_output "tar pxzf #{jdk_tarball} -C #{jdk_dir}"
+
       FileUtils.rm_rf jdk_tarball
       unless File.exists?("#{jdk_dir}/bin/java")
         puts "Unable to retrieve the JDK"
@@ -83,7 +86,7 @@ module LanguagePack
     # run a shell comannd and pipe stderr to stdout
     # @param [String] command to be run
     # @return [String] output of stdout and stderr
-    def run(command)
+    def run_with_err_output(command)
       %x{ #{command} 2>&1 }
     end
 

@@ -38,8 +38,8 @@ describe LanguagePack::Grails, type: :with_temp_dir do
 
   describe 'compile' do
 
-    let(:mock_web_xml_config) {mock("webxml")}
-    let(:grails_pack) {LanguagePack::Grails.new(tmpdir, nil, mock_web_xml_config)}
+    let(:mock_web_xml_config) { mock("webxml") }
+    let(:grails_pack) { LanguagePack::Grails.new(tmpdir, nil, mock_web_xml_config) }
 
     before do
       # TODO pass in Mock

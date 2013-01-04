@@ -25,11 +25,9 @@ module LanguagePack
     private
     def configure_autostaging
       unless autostaging_disabled
-        @web_config ||= WebXmlConfig.new(open(File.join(webapp_path, "WEB-INF","web.xml")), default_app_context, CONTEXT_PARAMS,
-          SERVLET_PARAMS, default_servlet_contexts)
-        @web_config.configure_autostaging_context_param
-        @web_config.configure_autostaging_servlet
-        save_web_config(@web_config.xml)
+        web_config.configure_autostaging_context_param
+        web_config.configure_autostaging_servlet
+        save_web_config(web_config.xml)
         copy_autostaging_jar
       end
     end

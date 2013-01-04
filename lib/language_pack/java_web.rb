@@ -36,9 +36,9 @@ module LanguagePack
       FileUtils.mkdir_p tomcat_dir
       tomcat_tarball="#{tomcat_dir}/tomcat.tar.gz"
       puts "Downloading Tomcat: #{TOMCAT_URL}"
-      run("curl --silent --location #{TOMCAT_URL} --output #{tomcat_tarball}")
+      run_with_err_output("curl --silent --location #{TOMCAT_URL} --output #{tomcat_tarball}")
       puts "Unpacking Tomcat to #{tomcat_dir}"
-      run("tar xzf #{tomcat_tarball} -C #{tomcat_dir} && mv #{tomcat_dir}/apache-tomcat*/* #{tomcat_dir} && " +
+      run_with_err_output("tar xzf #{tomcat_tarball} -C #{tomcat_dir} && mv #{tomcat_dir}/apache-tomcat*/* #{tomcat_dir} && " +
               "rm -rf #{tomcat_dir}/apache-tomcat*")
       FileUtils.rm_rf tomcat_tarball
       unless File.exists?("#{tomcat_dir}/bin/catalina.sh")
@@ -50,9 +50,9 @@ module LanguagePack
     def install_database_drivers
       Dir.chdir("lib") do
         puts "Downloading MySQL Driver: #{MYSQL_DRIVER_URL}"
-        run("curl --silent --location #{MYSQL_DRIVER_URL} --remote-name")
+        run_with_err_output("curl --silent --location #{MYSQL_DRIVER_URL} --remote-name")
         puts "Downloading Postgres Driver: #{POSTGRES_DRIVER_URL}"
-        run("curl --silent --location #{POSTGRES_DRIVER_URL} --remote-name")
+        run_with_err_output("curl --silent --location #{POSTGRES_DRIVER_URL} --remote-name")
       end
     end
 
@@ -67,19 +67,19 @@ module LanguagePack
     end
 
     def copy_webapp_to_tomcat
-      run("mkdir -p #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
+      run_with_err_output("mkdir -p #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
       # Move the logs dir created by staging back to the root level
-      run("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
+      run_with_err_output("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
     end
 
     def move_tomcat_to_root
-      run("mv #{tomcat_dir}/* . && rm -rf #{tomcat_dir}")
+      run_with_err_output("mv #{tomcat_dir}/* . && rm -rf #{tomcat_dir}")
     end
 
     def copy_resources
       # Configure server.xml with variable HTTP port and context.xml with custom startup listener
       # TODO get startup listener jar from URL
-      run("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
+      run_with_err_output("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
     end
 
     def java_opts
