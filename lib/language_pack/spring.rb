@@ -1,5 +1,4 @@
 require "language_pack/java_web"
-require "nokogiri"
 
 module LanguagePack
   class Spring < JavaWeb

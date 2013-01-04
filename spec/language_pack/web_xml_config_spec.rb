@@ -105,6 +105,23 @@ shared_examples_for LanguagePack::WebXmlConfig  do
 
         end
 
+        context("and a contextConfigLocationAnnotationConfig param is not specified") do
+          let(:context_params) do
+            {
+              contextConfigLocation: 'SOME_RANDOM_CONTEXT_CONFIG_LOCATION'
+            }
+          end
+
+          it "adds autoreconfig context to contextConfigLocation" do
+            subject
+            expect(mutated_xml["web-app"]["context-param"]).to eq(
+              "param-name" => 'contextConfigLocation',
+              "param-value" => "foo #{context_params[:contextConfigLocation]}"
+            )
+          end
+
+        end
+
         context 'and it has whitespace in the param-value' do
           let(:original_param_value) {"\n   foo  \n"}
           let(:xml) { "<web-app><context-param><param-name>contextConfigLocation</param-name><param-value>#{original_param_value}</param-value></context-param></web-app>" }
@@ -172,6 +189,27 @@ shared_examples_for LanguagePack::WebXmlConfig  do
                   "param-name" => 'contextConfigLocation',
                   "param-value" => "#{default_app_context_location} #{context_params[:contextConfigLocation]}"
                 }
+              ])
+            end
+          end
+
+          context('and a contextConfigLocationAnnotationConfig is not defined') do
+            let(:context_params) do
+              {
+                contextConfigLocation: 'SOME_RANDOM_CONTEXT_CONFIG_LOCATION'
+              }
+            end
+
+            it "adds autoreconfig context to contextConfigLocation" do
+              subject
+              expect(mutated_xml["web-app"]["context-param"]).to eq([
+                {
+                  "param-name" => 'foobar',
+                  "param-value" => "foo"
+                }, {
+                "param-name" => 'contextConfigLocation',
+                "param-value" => "#{default_app_context_location} #{context_params[:contextConfigLocation]}"
+              }
               ])
             end
           end

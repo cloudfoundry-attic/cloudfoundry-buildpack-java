@@ -1,26 +1,28 @@
 require "spec_helper"
 
-describe LanguagePack::Spring, :type=>:with_temp_dir do
+describe LanguagePack::Spring, type: :with_temp_dir do
+
+  let(:tmpdir) { @tmpdir }
 
   describe "detect" do
     subject { LanguagePack::Spring.use? }
 
     it "should be used if Spring class is present" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/classes/org/springframework")
         should eq true
       end
     end
 
     it "should be used if Spring class is present in installed Tomcat dir" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/classes/org/springframework")
         should eq true
       end
     end
 
     it "should be used if Spring jar with shortname is present" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.touch "WEB-INF/lib/spring-core-2.5.6.jar"
         should eq true
@@ -28,7 +30,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should be used if Spring jar with shortname is present in installed Tomcat dir" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
         FileUtils.touch "webapps/ROOT/WEB-INF/lib/spring-core-2.5.6.jar"
         should eq true
@@ -36,7 +38,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should be used if Spring jar with fullname is present" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.touch "WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
         should eq true
@@ -44,7 +46,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should be used if Spring jar with fullname is present in installed Tomcat dir" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
         FileUtils.touch "webapps/ROOT/WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
         should eq true
@@ -52,7 +54,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should not be used if no Spring classes or jars" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         should eq false
       end
     end
@@ -62,14 +64,14 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
   describe "compile" do
 
     let(:mock_web_xml_config) {mock("webxml")}
-    let(:spring_pack) {LanguagePack::Spring.new(@tmpdir, nil, mock_web_xml_config)}
+    let(:spring_pack) {LanguagePack::Spring.new(tmpdir, nil, mock_web_xml_config)}
 
     before do
       # TODO pass in Mock
       spring_pack.stub(:install_java)
       spring_pack.stub(:install_tomcat)
       spring_pack.stub(:install_database_drivers)
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
       end
       mock_web_xml_config.should_receive("configure_autostaging_context_param")
@@ -91,10 +93,10 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
 
   describe "#default_app_context" do
 
-    let(:spring_pack) {LanguagePack::Spring.new(@tmpdir)}
+    let(:spring_pack) {LanguagePack::Spring.new(tmpdir)}
 
     it "should return DEFAULT_APP_CONTEXT if file found" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p(File.join(spring_pack.webapp_path, "WEB-INF"))
         FileUtils.touch(File.join(spring_pack.webapp_path,"WEB-INF", "applicationContext.xml"))
         expect(spring_pack.default_app_context).to eq LanguagePack::Spring::DEFAULT_APP_CONTEXT
@@ -102,7 +104,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should return nil if no default app context file found" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p(File.join(spring_pack.webapp_path, "WEB-INF"))
         expect(spring_pack.default_app_context).to be_nil
       end
@@ -111,10 +113,10 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
 
   describe "#default_servlet_contexts" do
 
-    let(:spring_pack) {LanguagePack::Spring.new(@tmpdir)}
+    let(:spring_pack) {LanguagePack::Spring.new(tmpdir)}
 
     it "should return a map of servlet names to file locations" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p(File.join(spring_pack.webapp_path, "WEB-INF"))
         FileUtils.touch(File.join(spring_pack.webapp_path,"WEB-INF", "myname-servlet.xml"))
         FileUtils.touch(File.join(spring_pack.webapp_path,"WEB-INF", "myothername-servlet.xml"))
@@ -127,7 +129,7 @@ describe LanguagePack::Spring, :type=>:with_temp_dir do
     end
 
     it "should return an empty map when there are no servlet files" do
-      Dir.chdir(@tmpdir) do
+      Dir.chdir(tmpdir) do
         FileUtils.mkdir_p(File.join(spring_pack.webapp_path, "WEB-INF"))
         FileUtils.touch(File.join(spring_pack.webapp_path,"WEB-INF", "some.xml"))
         expect(spring_pack.default_servlet_contexts).to eq({})

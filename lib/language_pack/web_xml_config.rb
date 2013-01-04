@@ -81,7 +81,7 @@ module LanguagePack
 
     def autostaging_context_param_value
       contextClass = @parsed_xml.xpath("//#{prefix}context-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
-      if contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+      if context_params[:contextConfigLocationAnnotationConfig] && contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
         context_params[:contextConfigLocationAnnotationConfig]
       else
         context_params[:contextConfigLocation]
@@ -90,7 +90,7 @@ module LanguagePack
 
     def autostaging_init_param_value
       contextClass = @parsed_xml.xpath("//#{prefix}servlet/#{prefix}init-param[contains(normalize-space(#{prefix}param-name), normalize-space('contextClass'))]")
-      if contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
+      if context_params[:contextConfigLocationAnnotationConfig] && contextClass.xpath("#{prefix}param-value").text.strip == ANNOTATION_CONTEXT_CLASS
         context_params[:contextConfigLocationAnnotationConfig]
       else
         context_params[:contextConfigLocation]
@@ -100,9 +100,7 @@ module LanguagePack
     def namespace_prefix
       name_space = @parsed_xml.root.namespace
       if name_space
-        puts name_space.to_s
          if name_space.prefix
-           puts name_space.prefix
            return name_space.prefix
          end
         return "xmlns:"
