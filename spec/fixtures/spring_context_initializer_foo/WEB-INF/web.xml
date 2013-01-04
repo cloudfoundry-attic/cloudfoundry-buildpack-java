@@ -1,6 +1,0 @@
-<web-app>
-  <context-param>
-      <param-name>contextInitializerClasses</param-name>
-      <param-value>foo</param-value>
-  </context-param>
-</web-app>
