@@ -1,19 +1,10 @@
 require "spec_helper"
 
-describe LanguagePack::Java do
+describe LanguagePack::Java, type: :with_temp_dir do
 
-  # TODO factor to helper?
-  attr_reader :tmpdir
+  let(:tmpdir) { @tmpdir }
 
-  before do
-    @tmpdir = Dir.mktmpdir
-  end
-
-  after do
-    FileUtils.rm_r(@tmpdir) if @tmpdir
-  end
-
-  describe "detect" do
+  describe "#use" do
     it "should detect a Java app by recursive presence of a jar file" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p(File.join(tmpdir,"lib"))
@@ -51,22 +42,24 @@ describe LanguagePack::Java do
     end
   end
 
-  describe "compile" do
+  describe "#compile" do
+    let(:java_pack) { java_pack = LanguagePack::Java.new(tmpdir) }
+    let(:jdk_download) { ".jdk/jdk.tar.gz" }
 
-    it "should download and unpack Java with default version" do
-      java_pack = LanguagePack::Java.new(tmpdir)
-      java_pack.compile
-      File.exists?(File.join(tmpdir, ".jdk", "bin", "java")).should == true
+    before do
+      java_pack.stub(:download_jdk) do
+        FileUtils.copy( File.expand_path("../../support/fake-java.tar.gz", __FILE__), jdk_download)
+      end
     end
 
-    it "should download user-specified Java version" do
-      # TODO how to specify? system.properties?
+    it "should download and unpack Java with default version" do
+      Dir.chdir(tmpdir) do
+        java_pack.compile
+        File.exists?(File.join(tmpdir, ".jdk", "bin", "java")).should == true
+      end
     end
 
     it "should create a .profile.d with Java in PATH and JAVA_HOME set" do
-      java_pack = LanguagePack::Java.new(tmpdir)
-      # TODO pass in Mock
-      java_pack.stub(:install_java)
       java_pack.compile
       script_body = File.read(File.join(tmpdir, ".profile.d", "java.sh"))
       script_body.should include <<-EXPECTED
@@ -76,9 +69,6 @@ export PATH="$HOME/.jdk/bin:$PATH"
     end
 
     it "should create a .profile.d with heap size and tmpdir in JAVA_OPTS" do
-      java_pack = LanguagePack::Java.new(tmpdir)
-      # TODO pass in Mock
-      java_pack.stub(:install_java)
       java_pack.compile
       script_body = File.read(File.join(tmpdir, ".profile.d", "java.sh"))
       script_body.should include("-Xmx$MEMORY_LIMIT")
@@ -91,7 +81,57 @@ export PATH="$HOME/.jdk/bin:$PATH"
     end
   end
 
-  describe "release" do
+  describe "#java_version" do
+    let(:java_pack) { java_pack = LanguagePack::Java.new(tmpdir) }
+
+    it "should detect user-specified Java version if system.properties file is in root dir" do
+      Dir.chdir(tmpdir) do
+        File.open(File.join("system.properties"), 'w') {|f| f.write "java.runtime.version=1.7" }
+        java_pack.java_version.should == "1.7"
+      end
+    end
+
+    it "should detect user-specified Java version if system.properties file is in a sub directory" do
+      Dir.chdir(tmpdir) do
+        FileUtils.mkdir_p("WEB-INF/config")
+        File.open(File.join("WEB-INF", "config", "system.properties"), 'w') {|f| f.write "java.runtime.version=1.7" }
+        java_pack.java_version.should == "1.7"
+      end
+    end
+
+    it "should return default java version if system.properties is missing" do
+      java_pack.java_version.should == LanguagePack::Java::DEFAULT_JDK_VERSION
+    end
+
+    it "should return default java version if system.properties does not contain a version property" do
+      Dir.chdir(tmpdir) do
+        File.open(File.join("system.properties"), 'w') {|f| f.write "foo=bar" }
+        java_pack.java_version.should == LanguagePack::Java::DEFAULT_JDK_VERSION
+      end
+    end
+
+    it "should return default java version if file is not a properties file" do
+      Dir.chdir(tmpdir) do
+        File.open(File.join("system.properties"), 'w') {|f| f.write "HELLO WORLD" }
+        java_pack.java_version.should == LanguagePack::Java::DEFAULT_JDK_VERSION
+      end
+    end
+  end
+
+  describe "#jdk_download_url" do
+    let(:java_pack) { java_pack = LanguagePack::Java.new(tmpdir) }
+
+    it "should raise an Error if an unsupported Java version is specified" do
+      Dir.chdir(tmpdir) do
+        FileUtils.mkdir_p("WEB-INF/config")
+        File.open(File.join("WEB-INF", "config", "system.properties"), 'w') {|f| f.write "java.runtime.version=1.4" }
+        expect {java_pack.jdk_download_url }.to raise_error(RuntimeError, "Unsupported Java version: 1.4")
+      end
+    end
+
+  end
+
+  describe "#release" do
 
     it "should not return default process types" do
       LanguagePack::Java.new(tmpdir).release.should == {

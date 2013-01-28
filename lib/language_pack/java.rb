@@ -6,6 +6,8 @@ module LanguagePack
 
     DEFAULT_JDK_VERSION = "1.6".freeze
     JDK_URL_1_6 = "https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk6-u25-heroku-temaki.tar.gz".freeze
+    JDK_URL_1_7="https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk7-u7-heroku-temaki-b30.tar.gz".freeze
+    JDK_URL_1_8="https://s3.amazonaws.com/heroku-jvm-langpack-java/openjdk8-lambda-preview.tar.gz".freeze
 
     def self.use?
       Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
@@ -36,8 +38,7 @@ module LanguagePack
       FileUtils.mkdir_p jdk_dir
       jdk_tarball = "#{jdk_dir}/jdk.tar.gz"
 
-      puts "Downloading JDK: #{jdk_download_url}"
-      run_with_err_output "curl --silent --location #{jdk_download_url} --output #{jdk_tarball}"
+      download_jdk jdk_tarball
 
       puts "Unpacking JDK to #{jdk_dir}"
       run_with_err_output "tar pxzf #{jdk_tarball} -C #{jdk_dir}"
@@ -49,9 +50,21 @@ module LanguagePack
       end
     end
 
-    def detect_java_version
-      # TODO how to choose version
-      DEFAULT_JDK_VERSION
+    def java_version
+      @java_version ||= \
+      begin
+        files = Dir.glob("**/system.properties")
+        if !files.empty?
+          system_properties(files.first)["java.runtime.version"] || DEFAULT_JDK_VERSION
+        else
+          DEFAULT_JDK_VERSION
+        end
+      end
+    end
+
+    def download_jdk(jdk_tarball)
+      puts "Downloading JDK: #{jdk_download_url}"
+      run_with_err_output "curl --silent --location #{jdk_download_url} --output #{jdk_tarball}"
     end
 
     def jdk_dir
@@ -60,7 +73,9 @@ module LanguagePack
 
     def jdk_download_url
      # TODO OS Suffix stuff for Mac?
-      LanguagePack::Java.const_get("JDK_URL_#{detect_java_version.gsub(/\./, '_')}")
+     LanguagePack::Java.const_get("JDK_URL_#{java_version.gsub(/\./, '_')}")
+    rescue
+      raise "Unsupported Java version: #{java_version}"
     end
 
     def java_opts
@@ -109,6 +124,15 @@ module LanguagePack
 
     def set_env_override(key, val)
       add_to_profiled %{export #{key}="#{val.gsub('"','\"')}"}
+    end
+
+    private
+    def system_properties(system_props_file)
+      properties = {}
+      IO.foreach(system_props_file) do |line|
+        properties[$1.strip] = $2 if line =~ /([^=]*)=(.*)\/\/(.*)/ || line =~ /([^=]*)=(.*)/
+      end
+      properties
     end
   end
 end
