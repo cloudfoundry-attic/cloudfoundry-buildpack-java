@@ -1,13 +1,13 @@
 require "language_pack/java"
+require "language_pack/database_helpers"
 require "fileutils"
 
 # TODO logging
 module LanguagePack
   class JavaWeb < Java
+    include LanguagePack::DatabaseHelpers
 
     TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz".freeze
-    MYSQL_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=mysql/mysql-connector-java/5.1.12/mysql-connector-java-5.1.12.jar".freeze
-    POSTGRES_DRIVER_URL = "http://search.maven.org/remotecontent?filepath=postgresql/postgresql/9.0-801.jdbc4/postgresql-9.0-801.jdbc4.jar".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
 
     def self.use?
@@ -35,8 +35,9 @@ module LanguagePack
     def install_tomcat
       FileUtils.mkdir_p tomcat_dir
       tomcat_tarball="#{tomcat_dir}/tomcat.tar.gz"
-      puts "Downloading Tomcat: #{TOMCAT_URL}"
-      run_with_err_output("curl --silent --location #{TOMCAT_URL} --output #{tomcat_tarball}")
+
+      download_tomcat tomcat_tarball
+
       puts "Unpacking Tomcat to #{tomcat_dir}"
       run_with_err_output("tar xzf #{tomcat_tarball} -C #{tomcat_dir} && mv #{tomcat_dir}/apache-tomcat*/* #{tomcat_dir} && " +
               "rm -rf #{tomcat_dir}/apache-tomcat*")
@@ -47,13 +48,9 @@ module LanguagePack
       end
     end
 
-    def install_database_drivers
-      Dir.chdir("lib") do
-        puts "Downloading MySQL Driver: #{MYSQL_DRIVER_URL}"
-        run_with_err_output("curl --silent --location #{MYSQL_DRIVER_URL} --remote-name")
-        puts "Downloading Postgres Driver: #{POSTGRES_DRIVER_URL}"
-        run_with_err_output("curl --silent --location #{POSTGRES_DRIVER_URL} --remote-name")
-      end
+    def download_tomcat(tomcat_tarball)
+      puts "Downloading Tomcat: #{TOMCAT_URL}"
+      run_with_err_output("curl --silent --location #{TOMCAT_URL} --output #{tomcat_tarball}")
     end
 
     def remove_tomcat_files
@@ -85,11 +82,7 @@ module LanguagePack
     def java_opts
       # TODO proxy settings?
       # Don't override Tomcat's temp dir setting
-      opts = super.merge(
-        {
-            "-Dhttp.port=" => "$VCAP_APP_PORT"
-
-        })
+      opts = super.merge({ "-Dhttp.port=" => "$VCAP_APP_PORT" })
       opts.delete("-Djava.io.tmpdir=")
       opts
     end

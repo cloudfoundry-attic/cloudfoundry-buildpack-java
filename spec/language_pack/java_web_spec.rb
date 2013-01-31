@@ -48,19 +48,19 @@ describe LanguagePack::JavaWeb do
         FileUtils.touch "WEB-INF/web.xml"
         Dir.mkdir("logs")
         FileUtils.touch "logs/staging.log"
+        java_web_pack.stub(:download_tomcat) do
+          FileUtils.copy( File.expand_path("../../support/fake-tomcat.tar.gz", __FILE__), ".tomcat/tomcat.tar.gz")
+        end
+        java_web_pack.stub(:install_database_drivers)
       end
     end
 
     it "should download and unpack Tomcat to root directory" do
-      # TODO pass in Mock
-      @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
       File.exists?(File.join(tmpdir, "bin", "catalina.sh")).should == true
     end
 
     it "should remove specified Tomcat files" do
-      # TODO pass in Mock
-      @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
       File.exists?(File.join(tmpdir, "LICENSE")).should == false
       Dir.chdir(File.join(tmpdir, "webapps")) do
@@ -72,8 +72,6 @@ describe LanguagePack::JavaWeb do
     end
 
     it "should copy app to webapp ROOT but leave staging logs dir" do
-      # TODO pass in Mock
-      @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
       web_xml = File.join(tmpdir,"webapps","ROOT", "WEB-INF", "web.xml")
       File.exists?(web_xml).should == true
@@ -81,6 +79,7 @@ describe LanguagePack::JavaWeb do
     end
 
     it "should copy MySQL and Postgres drivers to Tomcat lib dir" do
+      java_web_pack.unstub(:install_database_drivers)
       java_web_pack.compile
       File.exists?(File.join(tmpdir,"lib","mysql-connector-java-5.1.12.jar")).should == true
       File.exists?(File.join(tmpdir,"lib","postgresql-9.0-801.jdbc4.jar")).should == true
@@ -96,9 +95,7 @@ describe LanguagePack::JavaWeb do
     end
 
     it "should create a .profile.d with proxy sys props, connector port, and heap size in JAVA_OPTS" do
-      # TODO pass in Mock
-      @java_web_pack.stub(:install_database_drivers)
-      @java_web_pack.stub(:install_tomcat)
+      java_web_pack.stub(:install_tomcat)
       java_web_pack.compile
       profiled = File.join(tmpdir,".profile.d","java.sh")
       File.exists?(profiled).should == true
@@ -110,7 +107,6 @@ describe LanguagePack::JavaWeb do
     end
 
     it "should add template server.xml to Tomcat for configuration of web port" do
-      @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
       server_xml = File.join(tmpdir,"conf","server.xml")
       File.exists?(server_xml).should == true
@@ -118,7 +114,6 @@ describe LanguagePack::JavaWeb do
     end
 
     it "should provide a way for DEA to ensure app is up by copying droplet.yaml and LifecycleListener config" do
-      @java_web_pack.stub(:install_database_drivers)
       java_web_pack.compile
       File.exists?(File.join(tmpdir,"droplet.yaml")).should == true
       File.exists?(File.join(tmpdir,"lib","TomcatStartupListener-1.0.jar")).should == true

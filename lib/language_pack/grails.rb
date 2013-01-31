@@ -28,7 +28,7 @@ module LanguagePack
         web_config.configure_autostaging_context_param
         web_config.configure_autostaging_servlet
         save_web_config(web_config.xml)
-        copy_autostaging_jar
+        copy_autostaging_jar File.join(webapp_path, "WEB-INF", "lib")
       end
     end
 

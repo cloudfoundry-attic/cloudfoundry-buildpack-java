@@ -1,9 +1,10 @@
 require "language_pack/java_web"
+require "language_pack/autostaging_helpers"
 
 module LanguagePack
   class Spring < JavaWeb
+    include LanguagePack::AutostagingHelpers
 
-    AUTOSTAGING_JAR = "auto-reconfiguration-0.6.5.jar"
     DEFAULT_APP_CONTEXT = "/WEB-INF/applicationContext.xml"
     DEFAULT_SERVLET_CONTEXT_SUFFIX = "-servlet.xml"
 
@@ -65,7 +66,7 @@ module LanguagePack
       web_config.configure_springenv_context_param
       web_config.configure_autostaging_servlet
       save_web_config(web_config.xml)
-      copy_autostaging_jar
+      copy_autostaging_jar File.join(webapp_path, "WEB-INF", "lib")
     end
 
     def web_config
@@ -75,12 +76,6 @@ module LanguagePack
 
     def save_web_config(web_config)
       File.open(File.join(webapp_path, "WEB-INF", "web.xml"), 'w') {|f| f.write(web_config) }
-    end
-
-    # TODO get this from a URL
-    def copy_autostaging_jar
-      FileUtils.cp(File.join(File.expand_path('../../../resources', __FILE__), AUTOSTAGING_JAR),
-                   File.join(webapp_path, "WEB-INF", "lib"))
     end
   end
 end
