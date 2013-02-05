@@ -28,6 +28,7 @@ module LanguagePack
         install_database_drivers
         #install_insight
         copy_resources
+        copy_droplet_yaml
         setup_profiled
       end
     end
@@ -65,8 +66,6 @@ module LanguagePack
 
     def copy_webapp_to_tomcat
       run_with_err_output("mkdir -p #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
-      # Move the logs dir created by staging back to the root level
-      run_with_err_output("mv #{tomcat_dir}/webapps/ROOT/logs ./logs")
     end
 
     def move_tomcat_to_root
@@ -77,6 +76,10 @@ module LanguagePack
       # Configure server.xml with variable HTTP port and context.xml with custom startup listener
       # TODO get startup listener jar from URL
       run_with_err_output("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
+    end
+
+    def copy_droplet_yaml
+      run_with_err_output("cp #{File.expand_path('../../../resources/droplet.yaml', __FILE__)} #{File.join(build_path, "..")}")
     end
 
     def java_opts
