@@ -177,7 +177,7 @@ describe LanguagePack::WebXmlConfig do
 
             end
 
-            context ('and there is no ANNOTATION_CONTEXT_CLASS in contextClass') do
+            context 'and there is no ANNOTATION_CONTEXT_CLASS in contextClass' do
               it "adds contextConfigLocation" do
                 subject
                 expect(mutated_xml["web-app"]["context-param"]).to eq([

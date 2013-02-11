@@ -10,7 +10,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "should be used if Play jar is present in unzipped app" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("myapp/lib")
-        FileUtils.touch ("myapp/lib/play.play_2.9.1-2.0.1.jar")
+        FileUtils.touch("myapp/lib/play.play_2.9.1-2.0.1.jar")
         should eq true
       end
     end
@@ -18,7 +18,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "should be used if Play jar is present in staged app" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("lib")
-        FileUtils.touch ("lib/play.play_2.9.1-2.0.1.jar")
+        FileUtils.touch("lib/play.play_2.9.1-2.0.1.jar")
         should eq true
       end
     end
@@ -26,7 +26,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "should not be used if jar file does not start with 'play.'" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("lib")
-        FileUtils.touch ("lib/playfoo.jar")
+        FileUtils.touch("lib/playfoo.jar")
         should eq false
       end
     end
@@ -34,7 +34,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "should not be used if Play jar is not present" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("lib")
-        FileUtils.touch ("lib/foo.jar")
+        FileUtils.touch("lib/foo.jar")
         should eq false
       end
     end
@@ -56,7 +56,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
 
     it "copies the app from a named directory to root of droplet" do
       Dir.chdir(tmpdir) do
-        FileUtils.touch ("myapp/lib/play.play_2.9.1-2.0.1.jar")
+        FileUtils.touch("myapp/lib/play.play_2.9.1-2.0.1.jar")
         subject
         File.exists?("lib/play.play_2.9.1-2.0.1.jar").should == true
         File.exists?("myapp/lib/play.play_2.9.1-2.0.1.jar").should == false
@@ -75,8 +75,8 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "raises an Error if start script is missing" do
       Dir.chdir(tmpdir) do
         FileUtils.rm "myapp/start"
-        FileUtils.touch ("myapp/lib/play.play_2.9.1-2.0.1.jar")
-        expect { subject }.to raise_error /Missing start script/
+        FileUtils.touch("myapp/lib/play.play_2.9.1-2.0.1.jar")
+        expect { subject }.to raise_error(/Missing start script/)
       end
     end
 
@@ -130,7 +130,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
       script = File.read(profiled)
       script.should include("-Xmx$MEMORY_LIMIT")
       script.should include("-Xms$MEMORY_LIMIT")
-      script.should include ("-Dhttp.port=$VCAP_APP_PORT")
+      script.should include("-Dhttp.port=$VCAP_APP_PORT")
       script.should include("-Djava.io.tmpdir=$TMPDIR")
     end
   end
