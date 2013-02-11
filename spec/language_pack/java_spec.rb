@@ -48,7 +48,7 @@ describe LanguagePack::Java, type: :with_temp_dir do
 
     before do
       java_pack.stub(:download_jdk) do
-        FileUtils.copy( File.expand_path("../../support/fake-java.tar.gz", __FILE__), jdk_download)
+        FileUtils.copy(File.expand_path("../../support/fake-java.tar.gz", __FILE__), jdk_download)
       end
     end
 

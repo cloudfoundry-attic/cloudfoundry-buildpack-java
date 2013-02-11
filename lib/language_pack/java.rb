@@ -41,11 +41,12 @@ module LanguagePack
       download_jdk jdk_tarball
 
       puts "Unpacking JDK to #{jdk_dir}"
-      run_with_err_output "tar pxzf #{jdk_tarball} -C #{jdk_dir}"
+      tar_output = run_with_err_output "tar pxzf #{jdk_tarball} -C #{jdk_dir}"
 
       FileUtils.rm_rf jdk_tarball
       unless File.exists?("#{jdk_dir}/bin/java")
         puts "Unable to retrieve the JDK"
+        puts tar_output
         exit 1
       end
     end
