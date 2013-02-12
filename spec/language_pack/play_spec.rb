@@ -63,15 +63,6 @@ describe LanguagePack::Play, type: :with_temp_dir do
       end
     end
 
-    it "sets executable perms on the user's start script" do
-      Dir.chdir(tmpdir) do
-        FileUtils.chmod(0644, "myapp/start")
-        subject
-        File.exists?("start").should == true
-        File.stat("start").mode.to_s(8)[3..5].should == "744"
-      end
-    end
-
     it "raises an Error if start script is missing" do
       Dir.chdir(tmpdir) do
         FileUtils.rm "myapp/start"

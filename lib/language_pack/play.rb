@@ -18,7 +18,6 @@ module LanguagePack
       Dir.chdir(build_path) do
         super
         move_app_to_root
-        make_start_executable
         install_database_drivers
         configure_autostaging
       end
@@ -40,14 +39,10 @@ module LanguagePack
       FileUtils.rm_rf app_dir
     end
 
-    def make_start_executable
-      raise "Missing start script. Please run 'play dist' and push the resulting zip file" if !File.exists?("start")
-      FileUtils.chmod(0744, "start")
-    end
-
     def configure_autostaging
       puts "Configuring autostaging"
       copy_autostaging_jar "lib"
+      raise "Missing start script. Please run 'play dist' and push the resulting zip file" if !File.exists?("start")
       start_cmd = File.read "start"
       File.open("start", "w") do |file|
         file.write start_cmd.gsub(/play\.core\.server\.NettyServer/, "org.cloudfoundry.reconfiguration.play.Bootstrap")
