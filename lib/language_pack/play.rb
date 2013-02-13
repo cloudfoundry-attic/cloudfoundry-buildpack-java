@@ -34,7 +34,9 @@ module LanguagePack
     private
     def move_app_to_root
       # Play dists unpack to a dir named for app.  Assume that is the only non-dot entry
+      puts "Contents of staging directory #{Dir.glob("*")}"
       app_dir = Dir.glob("*").first
+      puts "Using app dir #{app_dir} with contents #{Dir.glob("#{app_dir}/*")}"
       run_with_err_output "cp -a #{File.join(app_dir, "*")} ."
       FileUtils.rm_rf app_dir
     end
