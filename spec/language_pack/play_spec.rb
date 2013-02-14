@@ -54,6 +54,12 @@ describe LanguagePack::Play, type: :with_temp_dir do
       end
     end
 
+    it "selects the right directory to copy" do
+      FileUtils.mkdir_p("#{tmpdir}/some_other_dir")
+      FileUtils.touch("#{tmpdir}/__EMPTY__")
+      expect { subject }.not_to raise_error
+    end
+
     it "copies the app from a named directory to root of droplet" do
       Dir.chdir(tmpdir) do
         FileUtils.touch("myapp/lib/play.play_2.9.1-2.0.1.jar")
@@ -67,7 +73,14 @@ describe LanguagePack::Play, type: :with_temp_dir do
       Dir.chdir(tmpdir) do
         FileUtils.rm "myapp/start"
         FileUtils.touch("myapp/lib/play.play_2.9.1-2.0.1.jar")
-        expect { subject }.to raise_error(/Missing start script/)
+        expect { subject }.to raise_error(/Play app not detected/)
+      end
+    end
+
+    it "raises an error if lib dir is missing" do
+      Dir.chdir(tmpdir) do
+        FileUtils.rm_rf "myapp/lib"
+        expect { subject }.to raise_error(/Play app not detected/)
       end
     end
 

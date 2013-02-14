@@ -33,18 +33,23 @@ module LanguagePack
 
     private
     def move_app_to_root
-      # Play dists unpack to a dir named for app.  Assume that is the only non-dot entry
-      puts "Contents of staging directory #{Dir.glob("*")}"
-      app_dir = Dir.glob("*").first
-      puts "Using app dir #{app_dir} with contents #{Dir.glob("#{app_dir}/*")}"
+      app_dir = play_app_dir
       run_with_err_output "cp -a #{File.join(app_dir, "*")} ."
       FileUtils.rm_rf app_dir
+    end
+
+
+    def play_app_dir
+      dirs = Dir.glob("*").select do |x|
+        File.directory?(x) && File.exists?("#{x}/start") && File.exists?("#{x}/lib")
+      end
+      return dirs.first if dirs.size == 1
+      raise "Play app not detected. Please run 'play dist' and push the resulting zip file"
     end
 
     def configure_autostaging
       puts "Configuring autostaging"
       copy_autostaging_jar "lib"
-      raise "Missing start script. Please run 'play dist' and push the resulting zip file" if !File.exists?("start")
       start_cmd = File.read "start"
       File.open("start", "w") do |file|
         file.write start_cmd.gsub(/play\.core\.server\.NettyServer/, "org.cloudfoundry.reconfiguration.play.Bootstrap")
