@@ -73,21 +73,76 @@ describe LanguagePack::Spring, type: :with_temp_dir do
       spring_pack.stub(:install_database_drivers)
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
+        FileUtils.mkdir_p("WEB-INF/classes")
       end
-      mock_web_xml_config.should_receive("configure_autostaging_context_param")
-      mock_web_xml_config.should_receive("configure_springenv_context_param")
-      mock_web_xml_config.should_receive("configure_autostaging_servlet")
-      mock_web_xml_config.should_receive("xml").and_return("somexmlforyoutosave")
     end
 
-    it "should save modified web.xml" do
-      spring_pack.compile
-      expect(File.read(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+    context "when auto-reconfig is explicitly enabled" do
+
+      before do
+        File.open(File.join("#{tmpdir}/WEB-INF/classes/system.properties"), 'w') do
+          |f| f.write "spring.autoconfig=true"
+        end
+
+        mock_web_xml_config.should_receive("configure_autostaging_context_param")
+        mock_web_xml_config.should_receive("configure_springenv_context_param")
+        mock_web_xml_config.should_receive("configure_autostaging_servlet")
+        mock_web_xml_config.should_receive("xml").and_return("somexmlforyoutosave")
+      end
+
+      it "should save modified web.xml" do
+        spring_pack.compile
+        expect(File.read(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+      end
+
+      it "should have the auto reconfiguration jar in the webapp lib path" do
+        spring_pack.compile
+        File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+      end
     end
 
-    it "should have the auto reconfiguration jar in the webapp lib path" do
-      spring_pack.compile
-      File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+    context "when auto-reconfig is implicitly enabled (enabled by default)" do
+      before do
+        mock_web_xml_config.should_receive("configure_autostaging_context_param")
+        mock_web_xml_config.should_receive("configure_springenv_context_param")
+        mock_web_xml_config.should_receive("configure_autostaging_servlet")
+        mock_web_xml_config.should_receive("xml").and_return("somexmlforyoutosave")
+      end
+
+      it "should save modified web.xml" do
+        spring_pack.compile
+        expect(File.read(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+      end
+
+      it "should have the auto reconfiguration jar in the webapp lib path" do
+        spring_pack.compile
+        File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+      end
+    end
+
+    context "when auto-reconfig is disabled" do
+      before do
+        File.open(File.join("#{tmpdir}/WEB-INF/classes/system.properties"), 'w') do
+          |f| f.write "spring.autoconfig=false"
+        end
+      end
+
+      it "should not modify web.xml" do
+        mock_web_xml_config.should_not_receive("configure_autostaging_context_param")
+        mock_web_xml_config.should_not_receive("configure_springenv_context_param")
+        mock_web_xml_config.should_not_receive("configure_autostaging_servlet")
+        mock_web_xml_config.should_not_receive("xml")
+
+        spring_pack.compile
+        expect(File.exists?(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to be_false
+
+      end
+
+      it "should have the auto reconfiguration jar in the webapp lib path" do
+        spring_pack.compile
+        expect(File.exists?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR))).to be_false
+      end
+
     end
   end
 

@@ -40,7 +40,9 @@ module LanguagePack
 
     def compile
       super
-      configure_autostaging
+      Dir.chdir(webapp_path) do
+        configure_autostaging unless system_properties["spring.autoconfig"] == false
+      end
     end
 
     def default_app_context

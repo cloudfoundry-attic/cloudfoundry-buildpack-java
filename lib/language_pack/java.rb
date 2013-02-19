@@ -52,15 +52,12 @@ module LanguagePack
     end
 
     def java_version
-      @java_version ||= \
-      begin
-        files = Dir.glob("**/system.properties")
-        if !files.empty?
-          system_properties(files.first)["java.runtime.version"] || DEFAULT_JDK_VERSION
-        else
-          DEFAULT_JDK_VERSION
-        end
-      end
+      @java_version ||= system_properties["java.runtime.version"] || DEFAULT_JDK_VERSION
+    end
+
+    def system_properties
+      files = Dir.glob("**/system.properties")
+      (!files.empty?) ? properties(files.first) :  {}
     end
 
     def download_jdk(jdk_tarball)
@@ -128,10 +125,19 @@ module LanguagePack
     end
 
     private
-    def system_properties(system_props_file)
+    def properties(props_file)
       properties = {}
-      IO.foreach(system_props_file) do |line|
-        properties[$1.strip] = $2 if line =~ /([^=]*)=(.*)\/\/(.*)/ || line =~ /([^=]*)=(.*)/
+      IO.foreach(props_file) do |line|
+        if line =~ /([^=]*)=(.*)\/\/(.*)/ || line =~ /([^=]*)=(.*)/
+          case $2
+          when "true"
+            properties[$1.strip] = true
+          when "false"
+            properties[$1.strip] = false
+          else
+            properties[$1.strip] = $2
+          end
+        end
       end
       properties
     end
