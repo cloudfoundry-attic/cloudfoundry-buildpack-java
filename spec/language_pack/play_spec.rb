@@ -41,13 +41,48 @@ describe LanguagePack::Play, type: :with_temp_dir do
   end
 
   describe "compile" do
+
+    shared_examples "start script modification" do
+      before do
+        File.open("#{tmpdir}/myapp/start", 'w') do |f|
+          f.write(start_script)
+        end
+      end
+
+      it "adds MySQL and Postgres drivers to classpath" do
+        Dir.chdir(tmpdir) do
+          play_pack.unstub(:install_database_drivers)
+          subject
+          File.read("start").should include "`dirname $0`/lib/mysql-connector-java-5.1.12.jar"
+          File.read("start").should include "`dirname $0`/lib/postgresql-9.0-801.jdbc4.jar"
+        end
+      end
+
+      it "enables autostaging bootstrap class and library in user's start script" do
+        Dir.chdir(tmpdir) do
+          subject
+          File.read("start").should == expected_start_script
+        end
+      end
+
+      it "should not modify the start script if classpath regex is not found" do
+        Dir.chdir(tmpdir) do
+          File.open("#{tmpdir}/myapp/start", 'w') do |f|
+            f.write("something that doesn't match")
+          end
+          subject
+          File.read("start").should == "something that doesn't match"
+        end
+      end
+    end
+
     let(:play_pack) { java_pack = LanguagePack::Play.new(tmpdir) }
 
     subject { play_pack.compile }
 
     before do
       play_pack.stub(:install_java)
-      play_pack.stub(:install_database_drivers)
+      play_pack.stub(:install_database_drivers).and_return([])
       FileUtils.mkdir_p("#{tmpdir}/myapp/lib")
       File.open("#{tmpdir}/myapp/start", 'w') do |f|
         f.write("exec java $* -cp \"`dirname $0`/lib/*\" play.core.server.NettyServer `dirname $0`")
@@ -116,14 +151,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "copies autostaging jar to lib dir" do
       Dir.chdir(tmpdir) do
         subject
-        File.exists?("lib/auto-reconfiguration-0.6.5.jar").should == true
-      end
-    end
-
-    it "enables autostaging bootstrap class in user's start script" do
-      Dir.chdir(tmpdir) do
-        subject
-        File.read("start").should == "exec java $* -cp \"`dirname $0`/lib/*\" org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`"
+        File.exists?("lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR}").should == true
       end
     end
 
@@ -137,7 +165,60 @@ describe LanguagePack::Play, type: :with_temp_dir do
       script.should include("-Dhttp.port=$VCAP_APP_PORT")
       script.should include("-Djava.io.tmpdir=$TMPDIR")
     end
+
+    context "when play version is 2.0" do
+      let(:start_script) { "exec java $* -cp \"`dirname $0`/lib/*\" play.core.server.NettyServer `dirname $0`" }
+      let(:expected_start_script) { "exec java $* -cp \"`dirname $0`/lib/*:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR}\" org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
+      include_examples "start script modification"
+
+      it "adds JPA Plugin to the lib directory" do
+        Dir.chdir(tmpdir) do
+          FileUtils.touch("#{tmpdir}/myapp/lib/play.play_2.9.1-2.0.1.jar")
+          subject
+          File.exists?("lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}").should == true
+        end
+      end
+
+      it "adds JPA plugin to the start script classpath" do
+        FileUtils.touch("#{tmpdir}/myapp/lib/play.play_2.9.1-2.0.1.jar")
+        subject
+        File.read("#{tmpdir}/start").should include "`dirname $0`/lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}"
+      end
+    end
+
+    context "when play version is 2.1" do
+      let(:start_script) { "exec java $* -cp $classpath play.core.server.NettyServer `dirname $0`" }
+      let(:expected_start_script) { "exec java $* -cp $classpath:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR} org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
+      include_examples "start script modification"
+
+      it "adds JPA Plugin to the lib directory if the app is using JPA" do
+        Dir.chdir(tmpdir) do
+          FileUtils.touch("#{tmpdir}/myapp/lib/play.play-java-jpa_2.10-2.1.0.jar")
+          subject
+          File.exists?("lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}").should == true
+        end
+      end
+
+      it "adds JPA plugin to the start script classpath if the app is using JPA" do
+        FileUtils.touch("#{tmpdir}/myapp/lib/play.play-java-jpa_2.10-2.1.0.jar")
+        subject
+        File.read("#{tmpdir}/start").should include "`dirname $0`/lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}"
+      end
+
+      it "does not add the JPA Plugin to the lib directory if the app is not using JPA" do
+        Dir.chdir(tmpdir) do
+          subject
+          File.exists?("lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}").should == false
+        end
+      end
+
+      it "does not add JPA plugin to the start script classpath if the app is not using JPA" do
+        subject
+        File.read("#{tmpdir}/start").should_not include "`dirname $0`/lib/#{LanguagePack::Play::JPA_PLUGIN_JAR}"
+      end
+    end
   end
+
 
   describe "release" do
     it "should return the user's start script as default web process" do

@@ -87,7 +87,7 @@ describe LanguagePack::Spring, type: :with_temp_dir do
 
     it "should have the auto reconfiguration jar in the webapp lib path" do
       spring_pack.compile
-      File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", "auto-reconfiguration-0.6.5.jar")).should == true
+      File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
     end
   end
 
