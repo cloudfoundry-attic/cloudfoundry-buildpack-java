@@ -107,6 +107,7 @@ module LanguagePack
       set_env_override "JAVA_HOME", "$HOME/#{jdk_dir}"
       set_env_override "PATH", "$HOME/#{jdk_dir}/bin:$PATH"
       set_env_default "JAVA_OPTS", java_opts.map{|k,v| "#{k}#{v}"}.join(' ')
+      add_debug_opts_to_profiled
     end
 
     def add_to_profiled(string)
@@ -122,6 +123,14 @@ module LanguagePack
 
     def set_env_override(key, val)
       add_to_profiled %{export #{key}="#{val.gsub('"','\"')}"}
+    end
+
+    def debug_run_opts
+      "-Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=n"
+    end
+
+    def debug_suspend_opts
+      "-Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=y"
     end
 
     private
@@ -140,6 +149,20 @@ module LanguagePack
         end
       end
       properties
+    end
+
+    def add_debug_opts_to_profiled
+      add_to_profiled(
+        <<-DEBUG_BASH
+if [ -n "$VCAP_DEBUG_MODE" ]; then
+  if [ $VCAP_DEBUG_MODE == "run" ]; then
+    export JAVA_OPTS="$JAVA_OPTS #{debug_run_opts}"
+  elif [ $VCAP_DEBUG_MODE == "suspend" ]; then
+    export JAVA_OPTS="$JAVA_OPTS #{debug_suspend_opts}"
+  fi
+fi
+        DEBUG_BASH
+)
     end
   end
 end

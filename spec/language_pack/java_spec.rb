@@ -76,8 +76,55 @@ export PATH="$HOME/.jdk/bin:$PATH"
       script_body.should include("-Djava.io.tmpdir=$TMPDIR")
     end
 
-    it "should somehow support debug mode" do
-      # TODO get debug env out of DEA and into this plugin.  Make DEA just pass debug mode in env variable (run or suspend)
+    describe "debug mode" do
+
+      let(:java_script) { File.join(tmpdir, ".profile.d", "java.sh") }
+
+      before do
+        java_pack.compile
+        FileUtils.chmod(0744, java_script)
+      end
+
+      context "set to suspend" do
+        let(:debug_mode) { "suspend" }
+        let(:java_opts) do
+          `export VCAP_DEBUG_PORT=80
+          export VCAP_DEBUG_MODE=#{debug_mode}
+          #{File.read(java_script)}
+                  echo $JAVA_OPTS`
+        end
+
+        it "should add debug opts when debug mode is set to suspend" do
+          java_opts.should include (java_pack.debug_suspend_opts.gsub("$VCAP_DEBUG_PORT", "80"))
+        end
+      end
+
+
+      context "set to run" do
+        let(:debug_mode) { "run" }
+        let(:java_opts) do
+          `export VCAP_DEBUG_PORT=80
+          export VCAP_DEBUG_MODE=#{debug_mode}
+          #{File.read(java_script)}
+                  echo $JAVA_OPTS`
+        end
+
+        it "should add debug opts when debug mode is set to run" do
+          java_opts.should include (java_pack.debug_run_opts.gsub("$VCAP_DEBUG_PORT", "80"))
+        end
+      end
+
+      context "not set" do
+        let(:java_opts) do
+          `#{File.read(java_script)}
+                  echo $JAVA_OPTS`
+        end
+
+        it "should not add debug opts when debug mode is not set" do
+          expect($?.exitstatus).to eq 0
+          java_opts.should_not include ("-Xdebug")
+        end
+      end
     end
   end
 
