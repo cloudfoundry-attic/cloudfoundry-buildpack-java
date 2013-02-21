@@ -44,7 +44,7 @@ describe LanguagePack::Java, type: :with_temp_dir do
 
   describe "#compile" do
     let(:java_pack) { java_pack = LanguagePack::Java.new(tmpdir) }
-    let(:jdk_download) { ".jdk/jdk.tar.gz" }
+    let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
 
     before do
       java_pack.stub(:download_jdk) do
@@ -125,6 +125,24 @@ export PATH="$HOME/.jdk/bin:$PATH"
           java_opts.should_not include ("-Xdebug")
         end
       end
+    end
+  end
+
+  describe "#compile with invalid JDK" do
+    let(:java_pack) { LanguagePack::Java.new(tmpdir) }
+    let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
+
+    before do
+      java_pack.stub(:download_jdk) do
+        FileUtils.copy(File.expand_path("../../support/junk.tar.gz", __FILE__), jdk_download)
+      end
+    end
+
+    it "should exit when the downloaded JDK is invalid" do
+      lambda {java_pack.compile}.should raise_error { |error|
+        error.should be_a(SystemExit)
+        error.status.should eq(1)
+      }
     end
   end
 

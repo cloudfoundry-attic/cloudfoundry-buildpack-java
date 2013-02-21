@@ -12,3 +12,9 @@ RSpec.configure do |config|
     FileUtils.rm_r(@tmpdir)
   end
 end
+
+def make_scratch_dir(dir)
+  path = @tmpdir + '/' + dir
+  FileUtils.mkdir_p(path)
+  path
+end
