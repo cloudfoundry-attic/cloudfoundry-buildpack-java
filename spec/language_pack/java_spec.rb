@@ -95,9 +95,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
         end
 
         it "should add debug opts when debug mode is set to suspend" do
-          output = java_opts
-          puts output
-          output.should include (java_pack.debug_suspend_opts.gsub("$VCAP_DEBUG_PORT", "80"))
+          java_opts.should include (java_pack.debug_suspend_opts.gsub("$VCAP_DEBUG_PORT", "80"))
         end
       end
 
