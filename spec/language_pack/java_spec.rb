@@ -91,7 +91,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
           `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
           #{File.read(java_script)}
-                  echo $JAVA_OPTS`
+          echo $JAVA_OPTS`
         end
 
         it "should add debug opts when debug mode is set to suspend" do
@@ -106,7 +106,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
           `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
           #{File.read(java_script)}
-                  echo $JAVA_OPTS`
+          echo $JAVA_OPTS`
         end
 
         it "should add debug opts when debug mode is set to run" do

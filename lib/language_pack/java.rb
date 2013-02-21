@@ -118,7 +118,7 @@ module LanguagePack
     end
 
     def set_env_default(key, val)
-      add_to_profiled "export #{key}=${#{key}:-#{val}}"
+      add_to_profiled %{export #{key}="${#{key}:-#{val}}"}
     end
 
     def set_env_override(key, val)
