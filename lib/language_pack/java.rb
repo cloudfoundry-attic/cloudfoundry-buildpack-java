@@ -155,6 +155,7 @@ module LanguagePack
       add_to_profiled(
         <<-DEBUG_BASH
 if [ -n "$VCAP_DEBUG_MODE" ]; then
+  echo "Mode is $VCAP_DEBUG_MODE the end"
   if [ $VCAP_DEBUG_MODE == "run" ]; then
     export JAVA_OPTS="$JAVA_OPTS #{debug_run_opts}"
   elif [ $VCAP_DEBUG_MODE == "suspend" ]; then
