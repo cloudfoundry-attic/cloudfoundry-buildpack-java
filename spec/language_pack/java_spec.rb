@@ -139,7 +139,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
     end
 
     it "should exit when the downloaded JDK is invalid" do
-      lambda {java_pack.compile}.should raise_error { |error|
+      expect {java_pack.compile}.to raise_error { |error|
         error.should be_a(SystemExit)
         error.status.should eq(1)
       }
