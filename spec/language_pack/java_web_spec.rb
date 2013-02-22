@@ -110,14 +110,6 @@ describe LanguagePack::JavaWeb, type: :with_temp_dir do
       File.exists?(server_xml).should == true
       File.read(server_xml).should include("http.port")
     end
-
-    it "should provide a way for DEA to ensure app is up by copying droplet.yaml and LifecycleListener config" do
-      java_web_pack.compile
-      File.exists?(File.join(tmpdir,"droplet.yaml")).should == true
-      File.exists?(File.join(appdir,"lib","TomcatStartupListener-1.0.jar")).should == true
-      context_xml = File.join(appdir,"conf","context.xml")
-      File.read(context_xml).should include("AppCloudLifecycleListener")
-    end
   end
 
   describe "release" do

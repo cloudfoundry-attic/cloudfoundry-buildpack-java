@@ -7,7 +7,7 @@ module LanguagePack
   class JavaWeb < Java
     include LanguagePack::DatabaseHelpers
 
-    TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz".freeze
+    TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.37/bin/apache-tomcat-7.0.37.tar.gz".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
 
     def self.use?
@@ -28,7 +28,6 @@ module LanguagePack
         install_database_drivers
         #install_insight
         copy_resources
-        copy_droplet_yaml
         setup_profiled
       end
     end
@@ -73,13 +72,8 @@ module LanguagePack
     end
 
     def copy_resources
-      # Configure server.xml with variable HTTP port and context.xml with custom startup listener
-      # TODO get startup listener jar from URL
+      # Configure server.xml with variable HTTP port
       run_with_err_output("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
-    end
-
-    def copy_droplet_yaml
-      run_with_err_output("cp #{File.expand_path('../../../resources/droplet.yaml', __FILE__)} #{File.join(build_path, "..")}")
     end
 
     def java_opts
