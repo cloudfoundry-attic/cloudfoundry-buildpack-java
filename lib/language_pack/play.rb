@@ -10,7 +10,9 @@ module LanguagePack
     JPA_PLUGIN_JAR = "play-jpa-plugin-0.6.6.jar"
 
     def self.use?
-      Dir.glob("**/lib/play.*.jar").any?
+      use_with_hint?(self.to_s) do
+        Dir.glob("**/lib/play.*.jar").any?
+      end
     end
 
     def name

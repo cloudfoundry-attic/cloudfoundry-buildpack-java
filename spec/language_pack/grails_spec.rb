@@ -30,10 +30,6 @@ describe LanguagePack::Grails, type: :with_temp_dir do
       include_examples "detection tests"
     end
 
-    context 'when the app is in the tomcat dir' do
-      let(:root_dir) { 'webapps/ROOT/' }
-      include_examples "detection tests"
-    end
   end
 
   describe 'compile' do
@@ -44,8 +40,8 @@ describe LanguagePack::Grails, type: :with_temp_dir do
     before do
       # TODO pass in Mock
       grails_pack.stub(:install_java)
-      grails_pack.stub(:install_tomcat)
-      grails_pack.stub(:install_database_drivers)
+      grails_pack.stub(:install_container)
+      grails_pack.container.stub(:install_database_drivers)
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
       end
@@ -75,13 +71,15 @@ describe LanguagePack::Grails, type: :with_temp_dir do
         end
 
         it "should save modified web.xml" do
-          grails_pack.compile
-          expect(File.read(File.join(grails_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+          grails_pack.compile do |gp|
+            expect(File.read(File.join(gp.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+          end
         end
 
         it "should have the auto reconfiguration jar in the webapp lib path" do
-          grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+          grails_pack.compile do |gp|
+            File.exist?(File.join(gp.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+          end
         end
       end
 
@@ -93,8 +91,9 @@ describe LanguagePack::Grails, type: :with_temp_dir do
         end
 
         it "should not configure autostaging" do
-          grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          grails_pack.compile do |gp|
+            File.exist?(File.join(gp.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          end
         end
       end
 
@@ -106,8 +105,9 @@ describe LanguagePack::Grails, type: :with_temp_dir do
         end
 
         it "should not configure autostaging" do
-          grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          grails_pack.compile do |gp|
+            File.exist?(File.join(gp.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          end
         end
       end
     end
@@ -125,13 +125,15 @@ describe LanguagePack::Grails, type: :with_temp_dir do
       end
 
       it "should save modified web.xml" do
-        grails_pack.compile
-        expect(File.read(File.join(grails_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        grails_pack.compile do |gp|
+          expect(File.read(File.join(gp.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        end
       end
 
       it "should have the auto reconfiguration jar in the webapp lib path" do
-        grails_pack.compile
-        File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+        grails_pack.compile do |gp|
+          File.exist?(File.join(gp.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+        end
       end
     end
   end
