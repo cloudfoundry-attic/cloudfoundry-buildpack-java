@@ -107,6 +107,7 @@ module LanguagePack
       set_env_override "JAVA_HOME", "$HOME/#{jdk_dir}"
       set_env_override "PATH", "$HOME/#{jdk_dir}/bin:$PATH"
       set_env_default "JAVA_OPTS", java_opts.map{|k,v| "#{k}#{v}"}.join(' ')
+      set_env_default 'LANG', 'en_US.UTF-8'
       add_debug_opts_to_profiled
     end
 

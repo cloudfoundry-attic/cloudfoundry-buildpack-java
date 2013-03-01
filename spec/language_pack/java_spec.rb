@@ -76,6 +76,14 @@ export PATH="$HOME/.jdk/bin:$PATH"
       script_body.should include("-Djava.io.tmpdir=$TMPDIR")
     end
 
+    it "should create a .profile.d with LANG set" do
+      java_pack.compile
+      script_body = File.read(File.join(tmpdir, ".profile.d", "java.sh"))
+      script_body.should include <<-EXPECTED
+export LANG="${LANG:-en_US.UTF-8}"
+      EXPECTED
+    end
+
     describe "debug mode" do
 
       let(:java_script) { File.join(tmpdir, ".profile.d", "java.sh") }
