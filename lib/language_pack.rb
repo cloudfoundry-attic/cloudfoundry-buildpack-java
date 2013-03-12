@@ -1,6 +1,3 @@
-GEMFILE_PATH = File.expand_path("../../Gemfile", __FILE__)
-system({ "BUNDLE_GEMFILE" => GEMFILE_PATH }, "bundle install")
-
 require "pathname"
 require "language_pack/web_xml_config"
 require "language_pack/java"

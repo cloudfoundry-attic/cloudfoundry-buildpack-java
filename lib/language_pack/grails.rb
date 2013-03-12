@@ -1,5 +1,5 @@
 require "language_pack/spring"
-require "nokogiri"
+require "language_pack/load_nokogiri"
 
 module LanguagePack
   class Grails < Spring

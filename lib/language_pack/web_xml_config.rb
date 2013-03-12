@@ -1,4 +1,4 @@
-require "nokogiri"
+require "language_pack/load_nokogiri"
 
 module LanguagePack
   class WebXmlConfig
