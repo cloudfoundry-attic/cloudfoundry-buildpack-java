@@ -13,7 +13,7 @@ module LanguagePack::DatabaseHelpers
       SERVICE_DRIVER_HASH.each_pair do |search_pattern, url|
          unless !Dir.glob(search_pattern).empty?
            puts "Downloading Database Driver: #{url}"
-           run_with_err_output("curl --silent --location #{url} --remote-name")
+           fetch_package(File.basename(url), File.dirname(url))
            added_jars << File.basename(url)
          end
       end

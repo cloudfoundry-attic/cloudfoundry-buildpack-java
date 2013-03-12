@@ -1,5 +1,6 @@
 require "pathname"
 require "language_pack/web_xml_config"
+require "language_pack/package_fetcher"
 require "language_pack/java"
 require "language_pack/java_web"
 require "language_pack/spring"

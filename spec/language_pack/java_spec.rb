@@ -47,8 +47,8 @@ describe LanguagePack::Java, type: :with_temp_dir do
     let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
 
     before do
-      java_pack.stub(:download_jdk) do
-        FileUtils.copy(File.expand_path("../../support/fake-java.tar.gz", __FILE__), jdk_download)
+      java_pack.stub(:fetch_package) do |filename|
+        FileUtils.copy(File.expand_path("../../support/fake-java.tar.gz", __FILE__), filename)
       end
     end
 
@@ -141,8 +141,8 @@ export LANG="${LANG:-en_US.UTF-8}"
     let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
 
     before do
-      java_pack.stub(:download_jdk) do
-        FileUtils.copy(File.expand_path("../../support/junk.tar.gz", __FILE__), jdk_download)
+      java_pack.stub(:fetch_package) do |filename|
+        FileUtils.copy(File.expand_path("../../support/junk.tar.gz", __FILE__), filename)
       end
     end
 

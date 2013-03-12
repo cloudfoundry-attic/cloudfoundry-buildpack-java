@@ -5,9 +5,10 @@ require "fileutils"
 # TODO logging
 module LanguagePack
   class JavaWeb < Java
+    include LanguagePack::PackageFetcher
     include LanguagePack::DatabaseHelpers
 
-    TOMCAT_URL =  "http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.37/bin/apache-tomcat-7.0.37.tar.gz".freeze
+    TOMCAT_PACKAGE =  "apache-tomcat-7.0.37.tar.gz".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
 
     def self.use?
@@ -49,8 +50,9 @@ module LanguagePack
     end
 
     def download_tomcat(tomcat_tarball)
-      puts "Downloading Tomcat: #{TOMCAT_URL}"
-      run_with_err_output("curl --silent --location #{TOMCAT_URL} --output #{tomcat_tarball}")
+      puts "Downloading Tomcat: #{TOMCAT_PACKAGE}"
+      fetch_package TOMCAT_PACKAGE, "http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.37/bin/"
+      FileUtils.mv TOMCAT_PACKAGE, tomcat_tarball
     end
 
     def remove_tomcat_files

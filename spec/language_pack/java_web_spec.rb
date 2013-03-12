@@ -15,8 +15,8 @@ describe LanguagePack::JavaWeb, type: :with_temp_dir do
       Dir.mkdir("app")
       Dir.chdir(appdir) do
         Dir.mkdir("WEB-INF")
-        java_web_pack.stub(:download_tomcat) do
-          FileUtils.copy( File.expand_path("../../support/fake-tomcat.tar.gz", __FILE__), ".tomcat/tomcat.tar.gz")
+        java_web_pack.stub(:fetch_package) do |package|
+          FileUtils.copy( File.expand_path("../../support/fake-tomcat.tar.gz", __FILE__), package)
         end
         java_web_pack.stub(:install_database_drivers)
       end
