@@ -12,7 +12,6 @@ module LanguagePack::DatabaseHelpers
     Dir.chdir("lib") do
       SERVICE_DRIVER_HASH.each_pair do |search_pattern, url|
          unless !Dir.glob(search_pattern).empty?
-           puts "Downloading Database Driver: #{url}"
            fetch_package(File.basename(url), File.dirname(url))
            added_jars << File.basename(url)
          end

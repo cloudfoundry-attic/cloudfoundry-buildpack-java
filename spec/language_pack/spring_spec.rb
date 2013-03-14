@@ -75,6 +75,10 @@ describe LanguagePack::Spring, type: :with_temp_dir do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.mkdir_p("WEB-INF/classes")
       end
+
+      spring_pack.stub(:fetch_package) do |package_name|
+        FileUtils.touch(package_name)
+      end
     end
 
     context "when auto-reconfig is explicitly enabled" do

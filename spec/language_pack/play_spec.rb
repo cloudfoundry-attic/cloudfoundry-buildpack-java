@@ -87,6 +87,10 @@ describe LanguagePack::Play, type: :with_temp_dir do
       File.open("#{tmpdir}/myapp/start", 'w') do |f|
         f.write("exec java $* -cp \"`dirname $0`/lib/*\" play.core.server.NettyServer `dirname $0`")
       end
+
+      play_pack.stub(:fetch_package) do |package_name|
+        FileUtils.touch(package_name)
+      end
     end
 
     it "selects the right directory to copy" do

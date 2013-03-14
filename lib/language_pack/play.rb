@@ -3,6 +3,7 @@ require "language_pack/java"
 module LanguagePack
   class Play < Java
 
+    include LanguagePack::PackageFetcher
     include LanguagePack::DatabaseHelpers
     include LanguagePack::AutostagingHelpers
 
@@ -54,8 +55,9 @@ module LanguagePack
     end
 
     def copy_jpa_plugin
-      FileUtils.cp(File.join(File.expand_path('../../../resources', __FILE__), JPA_PLUGIN_JAR),
-                   "lib")
+      FileUtils.chdir("lib") do
+        fetch_package JPA_PLUGIN_JAR
+      end
     end
 
     def play_app_dir
