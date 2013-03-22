@@ -1,12 +1,63 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# vim: set ft=sh
 
-$:.unshift File.expand_path("../../lib", __FILE__)
-require "language_pack"
+BUILD_DIR=$1
 
-if pack = LanguagePack.detect(ARGV.first)
-  puts pack.name
-  exit 0
-else
-  puts "no"
-  exit 1
-end
+JAVA_WEB_DIR="WEB-INF"
+GRAILS_WEB_DIR="WEB-INF/lib/grails-web"
+WEBAPP_DIR="webapps/ROOT"
+
+
+### Play
+if [ -n "$(find $BUILD_DIR -name 'play.*.jar')" ]; then
+   echo "Play"
+   exit 0
+fi
+
+
+### Grails
+for dir in "${BUILD_DIR}/${WEBAPP_DIR}/${GRAILS_WEB_DIR}" "${BUILD_DIR}/${GRAILS_WEB_DIR}"; do
+  if [ -d "$dir" ] && [ -n "$(find $dir -name '*.jar' -maxdepth 1)" ]; then
+     echo "Grails"
+     exit 0
+  fi
+done
+
+
+### Spring
+for dir in "${BUILD_DIR}/${WEBAPP_DIR}/${JAVA_WEB_DIR}" "${BUILD_DIR}/${JAVA_WEB_DIR}"; do
+  [ -d "$dir" ] || continue
+
+  if [ -d "$dir/classes/org/springframework" ]; then
+     echo "Spring"
+     exit 0
+  fi
+
+  [ -d "$dir/lib" ] || continue
+
+  if [ -n "$(find "$dir/lib" -maxdepth 1 -name 'spring-core*.jar')" ] || \
+      [ -n "$(find "$dir/lib" -maxdepth 1 -name 'org.springframework.core*.jar')" ]; then
+     echo "Spring"
+     exit 0
+  fi
+done
+
+
+### JavaWeb
+for dir in "${BUILD_DIR}/${WEBAPP_DIR}/${JAVA_WEB_DIR}" "${BUILD_DIR}/${JAVA_WEB_DIR}"; do
+  if [ -f "$dir/web.xml" ]; then
+     echo "Java Web"
+     exit 0
+  fi
+done
+
+
+### Java
+if [ -n "$(find $BUILD_DIR -name '*.jar' -o -name '*.class')" ]; then
+   echo "Java"
+   exit 0
+fi
+
+
+echo "no"
+exit 1
