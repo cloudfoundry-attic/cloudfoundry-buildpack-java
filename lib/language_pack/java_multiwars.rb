@@ -12,7 +12,7 @@ module LanguagePack
     WEBAPP_DIR = "webapps/".freeze
 
     def self.use?
-      File.exists?("WEB-INF/web.xml") || File.exists?("webapps/ROOT/WEB-INF/web.xml")
+      Dir.open("."){|d| d.grep /.war$/}.size > 1
     end
 
     def name
@@ -65,17 +65,8 @@ module LanguagePack
       ".tomcat"
     end
 
-    def self.detact_war_files
-      wars = Dir.open("/tmp"){|d| d.grep /.war$/}
-      return wars.size > 1
-    end
-
     def copy_webapp_to_tomcat
-      if detact_war_files then
-        run_with_err_output("mkdir -p #{tomcat_dir}/webapps && mv * #{tomcat_dir}/webapps")
-      else
-        run_with_err_output("mkdir -p #{tomcat_dir}/webapps/ROOT && mv * #{tomcat_dir}/webapps/ROOT")
-      end
+      run_with_err_output("mkdir -p #{tomcat_dir}/webapps && mv * #{tomcat_dir}/webapps")
     end
 
     def move_tomcat_to_root

@@ -6,7 +6,7 @@ require "language_pack/java_web"
 require "language_pack/spring"
 require "language_pack/grails"
 require "language_pack/play"
-require "language_pack/java_multiwars.rb"
+require "language_pack/java_multiwars"
 
 # General Language Pack module
 module LanguagePack
