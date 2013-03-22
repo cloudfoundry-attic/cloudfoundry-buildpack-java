@@ -26,6 +26,14 @@ class LanguagePack::Container::WebContainer
       @@supported_containers[idx_name] = self
     end
 
+    def set_default(idx_name)
+      @@default_container = idx_name
+    end
+
+    def get_default
+      @@default_container
+    end
+
     def get_supported_containers
       @@supported_containers
     end

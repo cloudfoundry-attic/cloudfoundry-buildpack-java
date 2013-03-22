@@ -19,7 +19,7 @@ module LanguagePack
     }.freeze
 
     def self.use?
-      use_with_hint?(self.to_s) do
+      use_with_hint?(self.to_s, :pack) do
         spring_files_found = (Dir.glob("WEB-INF/classes/org/springframework").any? ||
             Dir.glob("WEB-INF/lib/spring-core*.jar").any? || Dir.glob("WEB-INF/lib/org.springframework.core*.jar").any?)
         #unless spring_files_found

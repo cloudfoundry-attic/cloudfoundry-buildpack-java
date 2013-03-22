@@ -8,10 +8,13 @@ module LanguagePack
   class JavaWeb < Java
 
     def self.use?
-      use_with_hint?(self.to_s) do
+      use_with_hint?(self.to_s, :pack) do
         ret = File.exists?("WEB-INF/web.xml")
-        Container::WebContainer.get_supported_containers.each do |_, sub_class|
-          return true if sub_class.use?
+        Container::WebContainer.get_supported_containers.each do |idx_name, sub_class|
+          if sub_class.use?
+            ret = true
+            next
+          end
         end unless ret
         ret
       end
@@ -21,7 +24,7 @@ module LanguagePack
 
     def initialize(build_path, cache_path=nil)
       super(build_path, cache_path)
-      @container = create_container
+      create_container
     end
 
     def name
@@ -34,23 +37,28 @@ module LanguagePack
 
     def get_detected_container
       Container::WebContainer.get_supported_containers.each do |idx_name, sub_class|
-        return idx_name if sub_class.use?
+        if sub_class.use?
+          return idx_name
+        end
       end
       nil
     end
 
     def get_default_container
-      Container::WebContainer.get_supported_containers.first[0]
+      # by default will use the last register container
+      Container::WebContainer.get_default
     end
 
     def create_container
-      container_idx_name = get_specified_container || get_detected_container || get_default_container
-      Container::WebContainer.create(container_idx_name, build_path)
+      Dir.chdir(build_path) do
+        container_idx_name = get_specified_container || get_detected_container || get_default_container
+        @container = Container::WebContainer.create(container_idx_name, build_path)
+      end
     end
 
     def install_container
       if container.nil?
-        puts "Not suitable AppServer/Container."
+        puts "No suitable AppServer/Container."
         exit 1
       end
       unless container.install

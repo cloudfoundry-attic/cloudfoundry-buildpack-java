@@ -9,7 +9,9 @@ class LanguagePack::Container::Tomcat < LanguagePack::Container::WebContainer
   TOMCAT_DISCARDED_FILES = %w[NOTICE RELEASE-NOTES RUNNING.txt LICENSE temp/. webapps/. work/. logs]
 
   def self.use?
-    File.exists?("WEB-INF/web.xml")
+    use_with_hint?(self.to_s, :container) do
+      File.exists?("WEB-INF/web.xml")
+    end
   end
 
   def self.web_root

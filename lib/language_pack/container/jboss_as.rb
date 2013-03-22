@@ -9,7 +9,9 @@ class LanguagePack::Container::JbossAS < LanguagePack::Container::WebContainer
   JBOSSAS_DISCARDED_FILES =  %w[copyright.txt LICENSE.txt README.txt docs/. standalone/deployments/. welcome-content/.]
 
   def self.use?
-    File.exists?("WEB-INF/jboss-web.xml") || Dir.glob(File.join("WEB-INF", "*-ds.xml")).count > 0 || Dir.glob(File.join("WEB-INF/classes/META-INF", "persistence.xml")).count > 0
+    use_with_hint?(self.to_s, :container) do
+      File.exists?("WEB-INF/jboss-web.xml") || Dir.glob(File.join("WEB-INF", "*-ds.xml")).count > 0 || Dir.glob(File.join("WEB-INF/classes/META-INF", "persistence.xml")).count > 0
+    end
   end
 
   def self.web_root

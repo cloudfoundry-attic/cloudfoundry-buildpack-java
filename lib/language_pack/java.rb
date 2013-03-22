@@ -14,7 +14,7 @@ module LanguagePack
     include LanguagePack::Util
 
     def self.use?
-      use_with_hint?(self.to_s) do
+      use_with_hint?(self.to_s, :pack) do
         Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
       end
     end
@@ -27,6 +27,8 @@ module LanguagePack
     def initialize(build_path, cache_path=nil)
       @build_path = build_path
       @cache_path = cache_path
+      FileUtils.mkdir_p(@build_path)
+      FileUtils.mkdir_p(@cache_path) if @cache_path
     end
 
     def name

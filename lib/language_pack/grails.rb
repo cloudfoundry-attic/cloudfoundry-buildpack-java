@@ -15,7 +15,7 @@ module LanguagePack
     }.freeze
 
     def self.use?
-      use_with_hint?(self.to_s) do
+      use_with_hint?(self.to_s, :pack) do
         Dir.glob("#{GRAILS_WEB_DIR}/*.jar").any?
       end
       #return true if Dir.glob("#{GRAILS_WEB_DIR}/*.jar").any?

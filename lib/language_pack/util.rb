@@ -15,30 +15,38 @@ module LanguagePack
     end
 
     module ClassMethods
-      def use_with_hint?(name, &block)
-        return true if detect_with_hint_file(name)
+      def use_with_hint?(name, hint_type, &block)
+        if detect_with_hint_file(name, hint_type)
+          return true
+        end
         if block.call
-          puts "block return true"
-          set_detected_hint_file(name)
+          set_detected_hint_file(name, hint_type)
           return true
         end
         return false
       end
 
-      def detected_hint_file
-        ".language_pack_detected"
+      def detected_hint_file(hint_type)
+        case hint_type
+        when :pack
+          ".language_pack_detected"
+        when :container
+          ".container_detected"
+        end
       end
 
-      def detect_with_hint_file(name)
+      def detect_with_hint_file(name, hint_type)
+        hint_file = detected_hint_file(hint_type)
         begin
-          File.exists?(detected_hint_file) && (File.open(detected_hint_file, 'r') { |f| f.read }) == name
+          File.exists?(hint_file) && (File.open(hint_file, 'r') { |f| f.read }) == name
         rescue => e
           false
         end
       end
 
-      def set_detected_hint_file(name)
-        File.open(detected_hint_file, 'w') do |f|
+      def set_detected_hint_file(name, hint_type)
+        hint_file = detected_hint_file(hint_type)
+        File.open(hint_file, 'w') do |f|
           f.write(name)
         end
       end
