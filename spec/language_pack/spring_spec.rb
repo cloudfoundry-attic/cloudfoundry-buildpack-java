@@ -14,13 +14,6 @@ describe LanguagePack::Spring, type: :with_temp_dir do
       end
     end
 
-    it "should be used if Spring class is present in installed Tomcat dir" do
-      Dir.chdir(tmpdir) do
-        FileUtils.mkdir_p("webapps/ROOT/WEB-INF/classes/org/springframework")
-        should eq true
-      end
-    end
-
     it "should be used if Spring jar with shortname is present" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
@@ -29,26 +22,10 @@ describe LanguagePack::Spring, type: :with_temp_dir do
       end
     end
 
-    it "should be used if Spring jar with shortname is present in installed Tomcat dir" do
-      Dir.chdir(tmpdir) do
-        FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
-        FileUtils.touch "webapps/ROOT/WEB-INF/lib/spring-core-2.5.6.jar"
-        should eq true
-      end
-    end
-
     it "should be used if Spring jar with fullname is present" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.touch "WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
-        should eq true
-      end
-    end
-
-    it "should be used if Spring jar with fullname is present in installed Tomcat dir" do
-      Dir.chdir(tmpdir) do
-        FileUtils.mkdir_p("webapps/ROOT/WEB-INF/lib")
-        FileUtils.touch "webapps/ROOT/WEB-INF/lib/org.springframework.core-3.0.4.RELEASE.jar"
         should eq true
       end
     end
@@ -69,8 +46,8 @@ describe LanguagePack::Spring, type: :with_temp_dir do
     before do
       # TODO pass in Mock
       spring_pack.stub(:install_java)
-      spring_pack.stub(:install_tomcat)
-      spring_pack.stub(:install_database_drivers)
+      spring_pack.stub(:install_container)
+      spring_pack.container.stub(:install_database_drivers)
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/lib")
         FileUtils.mkdir_p("WEB-INF/classes")
@@ -95,13 +72,15 @@ describe LanguagePack::Spring, type: :with_temp_dir do
       end
 
       it "should save modified web.xml" do
-        spring_pack.compile
-        expect(File.read(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        spring_pack.compile do |sp|
+          expect(File.read(File.join(sp.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        end
       end
 
       it "should have the auto reconfiguration jar in the webapp lib path" do
-        spring_pack.compile
-        File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+        spring_pack.compile do |sp|
+          File.exist?(File.join(sp.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+        end
       end
     end
 
@@ -114,13 +93,15 @@ describe LanguagePack::Spring, type: :with_temp_dir do
       end
 
       it "should save modified web.xml" do
-        spring_pack.compile
-        expect(File.read(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        spring_pack.compile do |sp|
+          expect(File.read(File.join(sp.webapp_path, "WEB-INF", "web.xml"))).to eq "somexmlforyoutosave"
+        end
       end
 
       it "should have the auto reconfiguration jar in the webapp lib path" do
-        spring_pack.compile
-        File.exist?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+        spring_pack.compile do |sp|
+          File.exist?(File.join(sp.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)).should == true
+        end
       end
     end
 
@@ -137,14 +118,16 @@ describe LanguagePack::Spring, type: :with_temp_dir do
         mock_web_xml_config.should_not_receive("configure_autostaging_servlet")
         mock_web_xml_config.should_not_receive("xml")
 
-        spring_pack.compile
-        expect(File.exists?(File.join(spring_pack.webapp_path, "WEB-INF", "web.xml"))).to be_false
+        spring_pack.compile do |sp|
+          expect(File.exists?(File.join(sp.webapp_path, "WEB-INF", "web.xml"))).to be_false
+        end
 
       end
 
       it "should have the auto reconfiguration jar in the webapp lib path" do
-        spring_pack.compile
-        expect(File.exists?(File.join(spring_pack.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR))).to be_false
+        spring_pack.compile do |sp|
+          expect(File.exists?(File.join(sp.webapp_path, "WEB-INF", "lib", LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR))).to be_false
+        end
       end
 
     end

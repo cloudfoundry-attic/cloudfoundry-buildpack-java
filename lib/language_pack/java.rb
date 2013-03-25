@@ -1,5 +1,6 @@
 require "yaml"
 require "fileutils"
+require "language_pack/util"
 
 module LanguagePack
   class Java
@@ -10,8 +11,12 @@ module LanguagePack
     JDK_PKG_1_7="openjdk7-u7-heroku-temaki-b30.tar.gz".freeze
     JDK_PKG_1_8="openjdk8-lambda-preview.tar.gz".freeze
 
+    include LanguagePack::Util
+
     def self.use?
-      Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
+      use_with_hint?(self.to_s, :pack) do
+        Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
+      end
     end
 
     attr_reader :build_path, :cache_path
@@ -22,6 +27,8 @@ module LanguagePack
     def initialize(build_path, cache_path=nil)
       @build_path = build_path
       @cache_path = cache_path
+      FileUtils.mkdir_p(@build_path)
+      FileUtils.mkdir_p(@cache_path) if @cache_path
     end
 
     def name
@@ -96,13 +103,6 @@ module LanguagePack
 
     def default_process_types
       {}
-    end
-
-    # run a shell comannd and pipe stderr to stdout
-    # @param [String] command to be run
-    # @return [String] output of stdout and stderr
-    def run_with_err_output(command)
-      %x{ #{command} 2>&1 }
     end
 
     def setup_profiled

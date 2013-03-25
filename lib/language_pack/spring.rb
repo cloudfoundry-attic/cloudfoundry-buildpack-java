@@ -19,14 +19,18 @@ module LanguagePack
     }.freeze
 
     def self.use?
-      spring_files_found = (Dir.glob("WEB-INF/classes/org/springframework").any? ||
-          Dir.glob("WEB-INF/lib/spring-core*.jar").any? || Dir.glob("WEB-INF/lib/org.springframework.core*.jar").any?)
-      unless spring_files_found
-        spring_files_found = (Dir.glob("webapps/ROOT/WEB-INF/classes/org/springframework").any? ||
-            Dir.glob("webapps/ROOT/WEB-INF/lib/spring-core*.jar").any? ||
-            Dir.glob("webapps/ROOT/WEB-INF/lib/org.springframework.core*.jar").any?)
+      use_with_hint?(self.to_s, :pack) do
+        spring_files_found = (Dir.glob("WEB-INF/classes/org/springframework").any? ||
+            Dir.glob("WEB-INF/lib/spring-core*.jar").any? || Dir.glob("WEB-INF/lib/org.springframework.core*.jar").any?)
+        #unless spring_files_found
+        #  Container::WebContainer.get_supported_containers.each do |_, sub_class|
+        #    return true if (Dir.glob("#{sub_class.web_root}/WEB-INF/classes/org/springframework").any? ||
+        #      Dir.glob("#{sub_class.web_root}/WEB-INF/lib/spring-core*.jar").any? ||
+        #      Dir.glob("#{sub_class.web_root}/WEB-INF/lib/org.springframework.core*.jar").any?)
+        #  end
+        #end
+        spring_files_found
       end
-      spring_files_found
     end
 
     def initialize(build_path, cache_path=nil, web_config=nil)
@@ -39,9 +43,10 @@ module LanguagePack
     end
 
     def compile
-      super
-      Dir.chdir(webapp_path) do
-        configure_autostaging unless system_properties["spring.autoconfig"] == false
+      super do |jwp|
+        Dir.chdir(jwp.webapp_path) do
+          jwp.configure_autostaging unless jwp.system_properties["spring.autoconfig"] == false
+        end
       end
     end
 
@@ -62,7 +67,6 @@ module LanguagePack
       servlet_contexts
     end
 
-    private
     def configure_autostaging
       web_config.configure_autostaging_context_param
       web_config.configure_springenv_context_param

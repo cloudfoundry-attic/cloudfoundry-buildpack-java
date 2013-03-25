@@ -15,14 +15,20 @@ module LanguagePack
     }.freeze
 
     def self.use?
-      Dir.glob("#{GRAILS_WEB_DIR}/*.jar").any? || Dir.glob("#{WEBAPP_DIR}#{GRAILS_WEB_DIR}/*.jar").any?
+      use_with_hint?(self.to_s, :pack) do
+        Dir.glob("#{GRAILS_WEB_DIR}/*.jar").any?
+      end
+      #return true if Dir.glob("#{GRAILS_WEB_DIR}/*.jar").any?
+      #Container::WebContainer.get_supported_containers.each do |_, sub_class|
+      #  return true if Dir.glob("#{sub_class.web_root}/#{GRAILS_WEB_DIR}/*.jar").any?
+      #end
+      #false
     end
 
     def name
       "Grails"
     end
 
-    private
     def configure_autostaging
       unless autostaging_disabled
         web_config.configure_autostaging_context_param
