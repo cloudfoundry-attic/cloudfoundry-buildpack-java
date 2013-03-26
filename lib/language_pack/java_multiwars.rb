@@ -12,7 +12,7 @@ module LanguagePack
     WEBAPP_DIR = "webapps/".freeze
 
     def self.use?
-      Dir.open("."){|d| d.grep /.war$/}.size > 1
+      Dir.glob("*.war").size > 1 || (Dir.exists? "webapps") && Dir.glob(File.join("webapps","*.war")).size > 1 
     end
 
     def name

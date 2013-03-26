@@ -28,6 +28,8 @@ describe LanguagePack::JavaMultiWars, type: :with_temp_dir do
         FileUtils.touch "a.war"
         FileUtils.touch "b.war"
         FileUtils.touch "c.war"
+        FileUtils.mkdir "META-INF"
+        puts Dir.pwd
         LanguagePack::JavaMultiWars.use?.should == true
       end
     end
@@ -58,4 +60,14 @@ describe LanguagePack::JavaMultiWars, type: :with_temp_dir do
       File.exists?(war_file).should == true
     end
   end 
+
+  describe "release" do
+     it "should return the Tomcat start script as default web process" do
+       java_multiwars.release.should == {
+         "addons" => [],
+         "config_vars" => {},
+          "default_process_types" => { "web" => "./bin/catalina.sh run" }
+       }.to_yaml
+     end
+  end
 end

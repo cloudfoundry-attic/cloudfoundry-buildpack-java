@@ -17,7 +17,7 @@ module LanguagePack
   def self.detect(*args)
     Dir.chdir(args.first)
 
-    pack = [ Play, Grails, Spring, JavaWeb, Java, JavaMultiWars ].detect do |klass|
+    pack = [ JavaMultiWars, Play, Grails, Spring, JavaWeb, Java ].detect do |klass|
       klass.use?
     end
 
