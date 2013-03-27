@@ -74,14 +74,14 @@ module LanguagePack
     end
 
     def copy_resources
-      # Configure server.xml with variable HTTP port
+      # Configure server.xml to use variable HTTP port with system property http.port
       run_with_err_output("cp -r #{File.expand_path('../../../resources/tomcat', __FILE__)}/* #{build_path}")
     end
 
     def java_opts
       # TODO proxy settings?
       # Don't override Tomcat's temp dir setting
-      opts = super.merge({ "-Dhttp.port=" => "$VCAP_APP_PORT" })
+      opts = super.merge({ "-Dhttp.port=" => "$PORT" })
       opts.delete("-Djava.io.tmpdir=")
       opts
     end
