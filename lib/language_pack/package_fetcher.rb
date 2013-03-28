@@ -46,7 +46,7 @@ module LanguagePack
       return unless File.exist?(file_path)
       puts "Copying #{filename} from the buildpack cache ..."
       FileUtils.cp(file_path, ".")
-      file_path
+      File.expand_path(File.join(".", filename))
     end
 
     def fetch_from_blobstore(filename)

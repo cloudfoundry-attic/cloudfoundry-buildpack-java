@@ -5,55 +5,56 @@ describe LanguagePack::PackageFetcher do
 
   let(:fake_class) { Class.new { include LanguagePack::PackageFetcher } }
   let(:filename) { "my-favorite-package.tgz" }
+  let(:fetched_filename) { "fetched-package.tgz" }
 
   subject { fake_class.new }
 
   describe "#fetch_package" do
     context "when the package is found in the buildpack_cache" do
       before do
-        subject.should_receive(:fetch_from_buildpack_cache).with(filename) { true }
+        subject.should_receive(:fetch_from_buildpack_cache).with(filename) { fetched_filename }
         subject.should_not_receive(:fetch_from_blobstore)
         subject.should_not_receive(:fetch_from_curl)
       end
 
-      it "stops after successfully retrieving from from cache" do
-        subject.fetch_package(filename).should be_true
+      it "stops after successfully retrieving from cache" do
+        subject.fetch_package(filename).should eql(fetched_filename)
       end
     end
 
     context "when the package is not found in the buildpack_cache, but found in the blobstore" do
       before do
-        subject.should_receive(:fetch_from_buildpack_cache).with(filename) { false }
-        subject.should_receive(:fetch_from_blobstore).with(filename) { true }
+        subject.should_receive(:fetch_from_buildpack_cache)
+        subject.should_receive(:fetch_from_blobstore).with(filename) { fetched_filename }
         subject.should_not_receive(:fetch_from_curl)
       end
 
       it "stops after successfully retrieving from the blobstore" do
-        subject.fetch_package(filename).should be_true
+        subject.fetch_package(filename).should eql(fetched_filename)
       end
     end
 
     context "when the package is not found in the buildpack_cache, nor the blobstore, but found via curl" do
       before do
-        subject.should_receive(:fetch_from_buildpack_cache).with(filename) { false }
-        subject.should_receive(:fetch_from_blobstore).with(filename) { false }
-        subject.should_receive(:fetch_from_curl).with(filename, LanguagePack::PackageFetcher::VENDOR_URL) { true }
+        subject.should_receive(:fetch_from_buildpack_cache).with(filename)
+        subject.should_receive(:fetch_from_blobstore).with(filename)
+        subject.should_receive(:fetch_from_curl).with(filename, LanguagePack::PackageFetcher::VENDOR_URL) { fetched_filename }
       end
 
       it "stops after successfully retrieving from the blobstore" do
-        subject.fetch_package(filename).should be_true
+        subject.fetch_package(filename).should eql(fetched_filename)
       end
     end
 
     context "when the package is not found anywhere" do
       before do
-        subject.should_receive(:fetch_from_buildpack_cache).with(filename) { false }
-        subject.should_receive(:fetch_from_blobstore).with(filename) { false }
-        subject.should_receive(:fetch_from_curl).with(filename, LanguagePack::PackageFetcher::VENDOR_URL) { false }
+        subject.should_receive(:fetch_from_buildpack_cache).with(filename)
+        subject.should_receive(:fetch_from_blobstore).with(filename)
+        subject.should_receive(:fetch_from_curl).with(filename, LanguagePack::PackageFetcher::VENDOR_URL)
       end
 
       it "returns false" do
-        subject.fetch_package(filename).should be_false
+        subject.fetch_package(filename).should be_nil
       end
     end
   end
