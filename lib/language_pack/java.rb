@@ -6,9 +6,6 @@ module LanguagePack
     include LanguagePack::PackageFetcher
 
     DEFAULT_JDK_VERSION = "1.6".freeze
-    JDK_PKG_1_6 = "openjdk6-u25-heroku-temaki.tar.gz".freeze
-    JDK_PKG_1_7="openjdk7-u7-heroku-temaki-b30.tar.gz".freeze
-    JDK_PKG_1_8="openjdk8-lambda-preview.tar.gz".freeze
 
     def self.use?
       Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
@@ -62,20 +59,13 @@ module LanguagePack
     end
 
     def download_jdk(jdk_tarball)
-      puts "Downloading JDK: #{jdk_download_url}"
-      fetch_package(jdk_download_url, "https://s3.amazonaws.com/heroku-jvm-langpack-java")
-      FileUtils.mv jdk_download_url, jdk_tarball
+      puts "Downloading JDK..."
+      fetched_package = fetch_jdk_package(java_version)
+      FileUtils.mv fetched_package, jdk_tarball
     end
 
     def jdk_dir
       ".jdk"
-    end
-
-    def jdk_download_url
-     # TODO OS Suffix stuff for Mac?
-     LanguagePack::Java.const_get("JDK_PKG_#{java_version.gsub(/\./, '_')}")
-    rescue
-      raise "Unsupported Java version: #{java_version}"
     end
 
     def java_opts

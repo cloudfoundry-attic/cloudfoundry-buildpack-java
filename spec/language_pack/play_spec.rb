@@ -90,6 +90,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
 
       play_pack.stub(:fetch_package) do |package_name|
         FileUtils.touch(package_name)
+        package_name
       end
     end
 

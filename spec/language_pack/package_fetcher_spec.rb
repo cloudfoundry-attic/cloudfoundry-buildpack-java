@@ -128,14 +128,14 @@ describe LanguagePack::PackageFetcher do
       subject.should_receive(:system).with("curl #{url}/#{filename} -s -o #{filename}")
     end
 
-    it "successfully downloads the file using curl and returns true" do
+    it "successfully downloads the file using curl and returns the downloaded file path" do
       File.should_receive(:exist?).with(filename) { true }
-      subject.send(:fetch_from_curl, filename, url).should be_true
+      subject.send(:fetch_from_curl, filename, url).should eql(filename)
     end
 
-    it "fails to downloads the file using curl and returns false" do
+    it "fails to downloads the file using curl and returns nil" do
       File.should_receive(:exist?).with(filename) { false }
-      subject.send(:fetch_from_curl, filename, url).should be_false
+      subject.send(:fetch_from_curl, filename, url).should be_nil
     end
   end
 end

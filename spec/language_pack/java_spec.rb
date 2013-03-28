@@ -47,8 +47,9 @@ describe LanguagePack::Java, type: :with_temp_dir do
     let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
 
     before do
-      java_pack.stub(:fetch_package) do |filename|
+      java_pack.stub(:fetch_jdk_package) do |filename|
         FileUtils.copy(File.expand_path("../../support/fake-java.tar.gz", __FILE__), filename)
+        filename
       end
     end
 
@@ -141,8 +142,9 @@ export LANG="${LANG:-en_US.UTF-8}"
     let(:jdk_download) { make_scratch_dir(".jdk") + "/jdk.tar.gz" }
 
     before do
-      java_pack.stub(:fetch_package) do |filename|
+      java_pack.stub(:fetch_jdk_package) do |filename|
         FileUtils.copy(File.expand_path("../../support/junk.tar.gz", __FILE__), filename)
+        filename
       end
     end
 
@@ -193,12 +195,13 @@ export LANG="${LANG:-en_US.UTF-8}"
 
   describe "#jdk_download_url" do
     let(:java_pack) { java_pack = LanguagePack::Java.new(tmpdir) }
+    let(:bad_version) { "1.4" }
 
     it "should raise an Error if an unsupported Java version is specified" do
       Dir.chdir(tmpdir) do
         FileUtils.mkdir_p("WEB-INF/config")
-        File.open(File.join("WEB-INF", "config", "system.properties"), 'w') {|f| f.write "java.runtime.version=1.4" }
-        expect {java_pack.jdk_download_url }.to raise_error(RuntimeError, "Unsupported Java version: 1.4")
+        File.open(File.join("WEB-INF", "config", "system.properties"), 'w') {|f| f.write "java.runtime.version=#{bad_version}" }
+        expect { java_pack.download_jdk(anything) }.to raise_error(RuntimeError, "Unsupported Java version: #{bad_version}")
       end
     end
 
