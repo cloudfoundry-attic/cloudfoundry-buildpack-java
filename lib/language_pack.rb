@@ -6,6 +6,7 @@ require "language_pack/java_web"
 require "language_pack/spring"
 require "language_pack/grails"
 require "language_pack/play"
+require "language_pack/xml_wrapper"
 
 # General Language Pack module
 module LanguagePack

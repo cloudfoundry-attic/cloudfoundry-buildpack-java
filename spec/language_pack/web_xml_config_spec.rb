@@ -88,7 +88,19 @@ describe LanguagePack::WebXmlConfig do
           end
 
           context('and a contextClass param is present and set to the ANNOTATION_CONTEXT_CLASS') do
-            let(:xml) { "<web-app><context-param><param-name>contextConfigLocation</param-name><param-value>foo</param-value></context-param><context-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></context-param></web-app>" }
+            let(:xml) { <<-XML
+              <web-app>
+                <context-param>
+                  <param-name>contextConfigLocation</param-name>
+                  <param-value>foo</param-value>
+                </context-param>
+                <context-param>
+                  <param-name>contextClass</param-name>
+                  <param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value>
+                </context-param>
+              </web-app>
+            XML
+            }
 
             it "adds the annotation autoreconfig class to contextConfigLocation" do
               subject
@@ -308,7 +320,7 @@ describe LanguagePack::WebXmlConfig do
       context "when a single servlet with dispatcherServletClass exists" do
 
         context "and it has an init-param node with contextConfigLocation" do
-          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>someLocation</param-value></init-param></servlet>" }
+          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>someLocation</param-value></init-param></servlet></web-app>" }
 
           it "adds the autoconfig contextConfigLocation" do
             subject
@@ -319,7 +331,7 @@ describe LanguagePack::WebXmlConfig do
           end
 
           context('and a contextClass param is present and set to the ANNOTATION_CONTEXT_CLASS') do
-            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param><init-param><param-name>contextConfigLocation</param-name><param-value>someLocation</param-value></init-param></servlet>" }
+            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param><init-param><param-name>contextConfigLocation</param-name><param-value>someLocation</param-value></init-param></servlet></web-app>" }
 
             it "adds the annotation autoreconfig class to contextConfigLocation" do
               subject
@@ -337,7 +349,7 @@ describe LanguagePack::WebXmlConfig do
 
           context 'and it has whitespace in the param-value' do
             let(:original_param_value) { "\n   foo  \n" }
-            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>#{original_param_value}</param-value></init-param></servlet>" }
+            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>#{original_param_value}</param-value></init-param></servlet></web-app>" }
 
             it "correctly understands the whitespace" do
               subject
@@ -350,7 +362,7 @@ describe LanguagePack::WebXmlConfig do
 
           context 'and it has whitespace in the param-name' do
             let(:param_name) { "   contextConfigLocation\n" }
-            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>#{param_name}</param-name><param-value>foo</param-value></init-param></servlet>" }
+            let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>#{param_name}</param-name><param-value>foo</param-value></init-param></servlet></web-app>" }
 
             it "correctly understands the whitespace" do
               subject
@@ -363,7 +375,7 @@ describe LanguagePack::WebXmlConfig do
         end
 
         context "and it has no contextConfigLocation init-param node" do
-          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class></servlet>" }
+          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class></servlet></web-app>" }
 
           context "and there is a servlet context file" do
             let(:default_servlet_context_locations) { {"MyServlet" => 'foo/my-servlet.xml'} }
@@ -376,7 +388,7 @@ describe LanguagePack::WebXmlConfig do
             end
 
             context('and a contextClass param is present and set to the ANNOTATION_CONTEXT_CLASS') do
-              let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param></servlet>" }
+              let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param></servlet></web-app>" }
 
               it "adds the annotation autoreconfig class to contextConfigLocation" do
                 subject
@@ -403,7 +415,7 @@ describe LanguagePack::WebXmlConfig do
               )
             end
             context('and a contextClass param is present and set to the ANNOTATION_CONTEXT_CLASS') do
-              let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param></servlet>" }
+              let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextClass</param-name><param-value>#{LanguagePack::WebXmlConfig::ANNOTATION_CONTEXT_CLASS}</param-value></init-param></servlet></web-app>" }
 
               it "adds the annotation autoreconfig class to contextConfigLocation" do
                 subject
@@ -423,7 +435,7 @@ describe LanguagePack::WebXmlConfig do
       end
 
       context "when no servlets with dispatcherServletClass exist" do
-        let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>someRandomServletClass</servlet-class></servlet>" }
+        let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>someRandomServletClass</servlet-class></servlet></web-app>" }
 
         it "does not modify the XML" do
           subject
@@ -434,8 +446,27 @@ describe LanguagePack::WebXmlConfig do
       context "when multiple servlets with dispatcherServletClass exists" do
 
         context "and they have an init-param node with contextConfigLocation" do
-          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>someLocation</param-value>" +
-            "</init-param></servlet><servlet><servlet-name>OtherServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class><init-param><param-name>contextConfigLocation</param-name><param-value>someOtherLocation</param-value></init-param></servlet></web-app>" }
+          let(:xml) { <<-XML
+            <web-app>
+              <servlet>
+                <servlet-name>MyServlet</servlet-name>
+                <servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class>
+                <init-param>
+                  <param-name>contextConfigLocation</param-name>
+                  <param-value>someLocation</param-value>"
+                </init-param>
+              </servlet>
+              <servlet>
+                <servlet-name>OtherServlet</servlet-name>
+                <servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class>
+                <init-param>
+                  <param-name>contextConfigLocation</param-name>
+                  <param-value>someOtherLocation</param-value>
+                </init-param>
+              </servlet>
+            </web-app>
+            XML
+            }
 
           it "adds the autoconfig contextConfigLocation to both" do
             subject
@@ -451,12 +482,25 @@ describe LanguagePack::WebXmlConfig do
         end
 
         context "and they have no init-param nodes" do
-          let(:xml) { "<web-app><servlet><servlet-name>MyServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class></servlet><servlet><servlet-name>OtherServlet</servlet-name><servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class></servlet>" }
+          let(:xml) { <<-XML
+                      <web-app>
+                        <servlet>
+                          <servlet-name>MyServlet</servlet-name>
+                          <servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class>
+                        </servlet>
+                        <servlet>
+                          <servlet-name>OtherServlet</servlet-name>
+                          <servlet-class>#{servlet_params[:dispatcherServletClass]}</servlet-class>
+                        </servlet>
+                      </web-app>
+                      XML
+                    }
 
           context "and there are servlet context files" do
             let(:default_servlet_context_locations) { {"MyServlet" => 'foo/my-servlet.xml', "OtherServlet" => 'bar/other-servlet.xml'} }
             it "adds contextConfigLocation initParams" do
               subject
+
               expect(mutated_xml["web-app"]["servlet"].find { |x| x["servlet-name"] == "MyServlet" }["init-param"]).to eq(
                 "param-name" => 'contextConfigLocation',
                 "param-value" => "foo/my-servlet.xml #{context_params[:contextConfigLocation]}"
