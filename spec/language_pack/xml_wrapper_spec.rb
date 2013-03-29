@@ -21,12 +21,12 @@ describe XmlWrapper do
   end
 
   it "adds a node" do
-    xml.add_node("/doc", "age", "15")
+    xml.add_node(path: "/doc", name: "age", value: "15")
     expect(xml.first("/doc/age").text).to eq "15"
   end
 
   it "adds an empty node" do
-    xml.add_node("/doc", "nothing")
+    xml.add_node(path: "/doc", name: "nothing")
     expect(xml.first("/doc/nothing")).to_not be_nil
   end
 
@@ -53,7 +53,7 @@ describe XmlWrapper do
     end
 
     it "adds a node" do
-      xml.add_node("", "middle", "Jesus", tom)
+      xml.add_node(name: "middle", value: "Jesus", relative_node: tom)
       expect(xml.xpath("/doc/name/middle")[0].text).to eq "Jesus"
     end
   end

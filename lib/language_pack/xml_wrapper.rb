@@ -22,11 +22,11 @@ class XmlWrapper
     @document.to_s
   end
 
-  def add_node(path, name, value = nil, relative_node = @document)
-    child = REXML::Element.new(name)
-    child.text = value
+  def add_node(opts)
+    child = REXML::Element.new(opts[:name])
+    child.text = opts[:value]
 
-    xpath(path, relative_node).first << child
+    xpath(opts.fetch(:path, "") , opts.fetch(:relative_node, @document)).first << child
     child
   end
 
