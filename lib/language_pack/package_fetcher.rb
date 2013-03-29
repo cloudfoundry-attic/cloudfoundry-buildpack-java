@@ -1,3 +1,4 @@
+require 'pry'
 require "net/http"
 require "uri"
 require "base64"

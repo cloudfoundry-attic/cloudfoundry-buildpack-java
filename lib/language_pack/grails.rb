@@ -42,21 +42,19 @@ module LanguagePack
     end
 
     def vmc_plugin_present grails_config_file
-      grails_config = Nokogiri::XML(open(grails_config_file))
+      grails_config = REXML::Document.new(open(grails_config_file))
       prefix = namespace_prefix(grails_config)
-      plugins = grails_config.xpath("//#{prefix}plugins/#{prefix}plugin[contains(normalize-space(), '#{VMC_GRAILS_PLUGIN}')]")
-      (plugins && !plugins.empty?)
+      plugins = REXML::XPath.match(grails_config, "//#{prefix}plugins/#{prefix}plugin[contains(normalize-space(), '#{VMC_GRAILS_PLUGIN}')]")
+      plugins && !plugins.empty?
     end
 
-    def namespace_prefix grails_config
-      name_space = grails_config.root.namespace
+    def namespace_prefix(grails_config)
+      name_space = grails_config.root.namespaces.first
       if name_space
-        if name_space.prefix
-          return name_space.prefix
-        end
-        return "xmlns:"
+        "#{name_space.first}:"
+      else
+        ''
       end
-      return ''
     end
   end
 end
