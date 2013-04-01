@@ -32,7 +32,7 @@ module LanguagePack
     end
 
     def java_opts
-      super.merge({ "-Dhttp.port=" => "$VCAP_APP_PORT" })
+      super.merge({ "-Dhttp.port=" => "$PORT" })
     end
 
     def default_process_types

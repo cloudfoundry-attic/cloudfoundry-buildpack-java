@@ -167,7 +167,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
       script = File.read(profiled)
       script.should include("-Xmx$MEMORY_LIMIT")
       script.should include("-Xms$MEMORY_LIMIT")
-      script.should include("-Dhttp.port=$VCAP_APP_PORT")
+      script.should include("-Dhttp.port=$PORT")
       script.should include("-Djava.io.tmpdir=$TMPDIR")
     end
 
