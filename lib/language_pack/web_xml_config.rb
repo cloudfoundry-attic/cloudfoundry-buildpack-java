@@ -1,5 +1,3 @@
-require 'pry'
-
 module LanguagePack
   class WebXmlConfig
     CONTEXT_CONFIG_LOCATION = "contextConfigLocation".freeze
