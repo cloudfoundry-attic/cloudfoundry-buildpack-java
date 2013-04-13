@@ -82,6 +82,7 @@ module LanguagePack
     #       It could end up in a state like "a b c,e;f" if several separators are used
     def update_param_value(path, new_value, separator=" ", node = nil)
       @parsed_xml.update_node_text(path, node) do |text|
+        text ||= ''
         if text.split.include?(new_value) || text == ''
           text
         else
