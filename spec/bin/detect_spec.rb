@@ -6,12 +6,14 @@ describe "detect" do
 
   def self.it_succeeds
     it "exits 0" do
+      subject
       expect($?).to be_success
     end
   end
 
   def self.it_fails
     it "exits 1" do
+      subject
       expect($?).to_not be_success
     end
   end
