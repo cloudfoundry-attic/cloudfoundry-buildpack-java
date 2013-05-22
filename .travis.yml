@@ -1,4 +1,7 @@
 language: ruby
 rvm:
+  - 2.0.0
   - 1.9.3
 script: bundle exec rspec
+notifications:
+  webhooks: http://ec2-54-229-6-54.eu-west-1.compute.amazonaws.com/projects/2fba47b4-4dd9-4b00-ada8-95de1d14ec91/status
