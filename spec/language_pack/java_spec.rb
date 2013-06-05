@@ -75,7 +75,6 @@ export PATH="$HOME/.jdk/bin:$PATH"
       script_body.should include("-Xmx$MEMORY_LIMIT")
       script_body.should include("-Xms$MEMORY_LIMIT")
       script_body.should include("-Djava.io.tmpdir=$TMPDIR")
-      script_body.should include("-XX:OnOutOfMemoryError='kill -9 %p'")
     end
 
     it "should create a .profile.d with LANG set" do

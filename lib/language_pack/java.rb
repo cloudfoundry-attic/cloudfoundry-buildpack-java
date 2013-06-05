@@ -73,7 +73,6 @@ module LanguagePack
           "-Xmx" => "$MEMORY_LIMIT",
           "-Xms" => "$MEMORY_LIMIT",
           "-Djava.io.tmpdir=" => "$TMPDIR",
-          "-XX:OnOutOfMemoryError=" => "'kill -9 %p'"
       }
     end
 
