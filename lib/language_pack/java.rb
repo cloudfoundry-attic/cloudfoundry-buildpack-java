@@ -105,6 +105,7 @@ module LanguagePack
 
     def bash_script
       <<-BASH
+#!/bin/bash
 export JAVA_HOME="$HOME/#{jdk_dir}"
 export PATH="$HOME/#{jdk_dir}/bin:$PATH"
 export JAVA_OPTS=${JAVA_OPTS:-#{java_opts.map{ |k, v| "#{k}#{v}" }.join(' ')}}
