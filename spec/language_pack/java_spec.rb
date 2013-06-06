@@ -98,7 +98,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
         let(:java_opts) do
           `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
-          source #{java_script}
+          . #{java_script}
           echo $JAVA_OPTS`
         end
 
@@ -113,7 +113,7 @@ export PATH="$HOME/.jdk/bin:$PATH"
         let(:java_opts) do
           `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
-          source #{java_script}
+          . #{java_script}
           echo $JAVA_OPTS`
         end
 
