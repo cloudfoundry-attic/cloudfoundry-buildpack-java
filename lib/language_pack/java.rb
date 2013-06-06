@@ -70,9 +70,10 @@ module LanguagePack
 
     def java_opts
       {
-          "-Xmx" => "$MEMORY_LIMIT",
-          "-Xms" => "$MEMORY_LIMIT",
-          "-Djava.io.tmpdir=" => "$TMPDIR",
+        "-Xmx" => "$MEMORY_LIMIT",
+        "-Xms" => "$MEMORY_LIMIT",
+        "-Djava.io.tmpdir=" => '\"$TMPDIR\"',
+        "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
       }
     end
 
@@ -96,37 +97,30 @@ module LanguagePack
     end
 
     def setup_profiled
-      set_env_override "JAVA_HOME", "$HOME/#{jdk_dir}"
-      set_env_override "PATH", "$HOME/#{jdk_dir}/bin:$PATH"
-      set_env_default "JAVA_OPTS", java_opts.map{|k,v| "#{k}#{v}"}.join(' ')
-      set_env_default 'LANG', 'en_US.UTF-8'
-      add_debug_opts_to_profiled
-    end
-
-    def add_to_profiled(string)
       FileUtils.mkdir_p "#{build_path}/.profile.d"
-      File.open("#{build_path}/.profile.d/java.sh", "a") do |file|
-        file.puts string
-      end
-    end
-
-    def set_env_default(key, val)
-      add_to_profiled %{export #{key}="${#{key}:-#{val}}"}
-    end
-
-    def set_env_override(key, val)
-      add_to_profiled %{export #{key}="#{val.gsub('"','\"')}"}
-    end
-
-    def debug_run_opts
-      "-Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=n"
-    end
-
-    def debug_suspend_opts
-      "-Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=y"
+      File.open("#{build_path}/.profile.d/java.sh", "a") { |file| file.puts(bash_script) }
     end
 
     private
+
+    def bash_script
+      <<-BASH
+#!/bin/bash
+
+export JAVA_HOME="$HOME/#{jdk_dir}"
+export PATH="$HOME/#{jdk_dir}/bin:$PATH"
+export JAVA_OPTS=${JAVA_OPTS:-#{java_opts.map{ |k, v| "#{k}#{v}" }.join(' ')}}
+export LANG="${LANG:-en_US.UTF-8}"
+if [ -n "$VCAP_DEBUG_MODE" ]; then
+  if [ "$VCAP_DEBUG_MODE" = "run" ]; then
+    export JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=n"
+  elif [ "$VCAP_DEBUG_MODE" = "suspend" ]; then
+    export JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=y"
+  fi
+fi
+      BASH
+    end
+
     def properties(props_file)
       properties = {}
       IO.foreach(props_file) do |line|
@@ -142,20 +136,6 @@ module LanguagePack
         end
       end
       properties
-    end
-
-    def add_debug_opts_to_profiled
-      add_to_profiled(
-        <<-DEBUG_BASH
-if [ -n "$VCAP_DEBUG_MODE" ]; then
-  if [ "$VCAP_DEBUG_MODE" = "run" ]; then
-    export JAVA_OPTS="$JAVA_OPTS #{debug_run_opts}"
-  elif [ "$VCAP_DEBUG_MODE" = "suspend" ]; then
-    export JAVA_OPTS="$JAVA_OPTS #{debug_suspend_opts}"
-  fi
-fi
-        DEBUG_BASH
-)
     end
   end
 end

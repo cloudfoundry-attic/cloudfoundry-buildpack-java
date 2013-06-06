@@ -168,7 +168,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
       script.should include("-Xmx$MEMORY_LIMIT")
       script.should include("-Xms$MEMORY_LIMIT")
       script.should include("-Dhttp.port=$PORT")
-      script.should include("-Djava.io.tmpdir=$TMPDIR")
+      script.should include('-Djava.io.tmpdir=\"$TMPDIR\"')
     end
 
     context "when play version is 2.0" do
