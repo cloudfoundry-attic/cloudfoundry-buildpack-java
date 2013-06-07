@@ -96,9 +96,9 @@ export PATH="$HOME/.jdk/bin:$PATH"
       context "set to suspend" do
         let(:debug_mode) { "suspend" }
         let(:java_opts) do
-          `#!/bin/bash
-          export VCAP_DEBUG_PORT=80
+          `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
+          export SHELL=/bin/bash
           . #{java_script}
           echo $JAVA_OPTS`
         end
@@ -111,9 +111,9 @@ export PATH="$HOME/.jdk/bin:$PATH"
       context "set to run" do
         let(:debug_mode) { "run" }
         let(:java_opts) do
-          `#!/bin/bash
-          export VCAP_DEBUG_PORT=80
+          `export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
+          export SHELL=/bin/bash
           . #{java_script}
           echo $JAVA_OPTS`
         end
