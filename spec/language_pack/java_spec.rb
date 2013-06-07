@@ -96,7 +96,8 @@ export PATH="$HOME/.jdk/bin:$PATH"
       context "set to suspend" do
         let(:debug_mode) { "suspend" }
         let(:java_opts) do
-          `export VCAP_DEBUG_PORT=80
+          `export MEMORY_LIMIT=10M
+          export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
           . #{java_script}
           echo $JAVA_OPTS`
