@@ -108,8 +108,9 @@ module LanguagePack
 #!/bin/bash
 export JAVA_HOME="$HOME/#{jdk_dir}"
 export PATH="$HOME/#{jdk_dir}/bin:$PATH"
-export JAVA_OPTS=${JAVA_OPTS:-#{java_opts.map{ |k, v| "#{k}#{v}" }.join(' ')}}
+export JAVA_OPTS=${JAVA_OPTS:-"#{java_opts.map{ |k, v| "#{k}#{v}" }.join(' ')}"}
 export LANG="${LANG:-en_US.UTF-8}"
+
 if [ -n "$VCAP_DEBUG_MODE" ]; then
   if [ "$VCAP_DEBUG_MODE" = "run" ]; then
     export JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=n"

@@ -103,30 +103,31 @@ export PATH="$HOME/.jdk/bin:$PATH"
         end
 
         it "should add debug opts when debug mode is set to suspend" do
-          pending "Fixing June 7"
           java_opts.should include '-Xdebug -Xrunjdwp:transport=dt_socket,address=80,server=y,suspend=y'
         end
       end
 
+
       context "set to run" do
         let(:debug_mode) { "run" }
         let(:java_opts) do
-          `export VCAP_DEBUG_PORT=80
+          `export MEMORY_LIMIT=10M
+          export VCAP_DEBUG_PORT=80
           export VCAP_DEBUG_MODE=#{debug_mode}
           . #{java_script}
           echo $JAVA_OPTS`
         end
 
         it "should add debug opts when debug mode is set to run" do
-          pending "Fixing June 7"
           java_opts.should include '-Xdebug -Xrunjdwp:transport=dt_socket,address=80,server=y,suspend=n'
         end
       end
 
       context "not set" do
         let(:java_opts) do
-          `#{File.read(java_script)}
-                  echo $JAVA_OPTS`
+          `export MEMORY_LIMIT=10M
+          . #{java_script}
+          echo $JAVA_OPTS`
         end
 
         it "should not add debug opts when debug mode is not set" do
