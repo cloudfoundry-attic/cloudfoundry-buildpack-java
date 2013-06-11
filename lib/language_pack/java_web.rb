@@ -8,7 +8,7 @@ module LanguagePack
     include LanguagePack::PackageFetcher
     include LanguagePack::DatabaseHelpers
 
-    TOMCAT_PACKAGE =  "apache-tomcat-7.0.40.tar.gz".freeze
+    TOMCAT_PACKAGE =  "apache-tomcat-7.0.41.tar.gz".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
 
     def self.use?
@@ -51,7 +51,7 @@ module LanguagePack
 
     def download_tomcat(tomcat_tarball)
       puts "Downloading Tomcat: #{TOMCAT_PACKAGE}"
-      fetch_package TOMCAT_PACKAGE, "http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.40/bin/"
+      fetch_package TOMCAT_PACKAGE, "http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.41/bin/"
       FileUtils.mv TOMCAT_PACKAGE, tomcat_tarball
     end
 
