@@ -72,8 +72,11 @@ module LanguagePack
       {
         "-Xmx" => "$MEMORY_LIMIT",
         "-Xms" => "$MEMORY_LIMIT",
-        "-Djava.io.tmpdir=" => '\"$TMPDIR\"',
-        "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
+        "-Djava.io.tmpdir=" => '\"$TMPDIR\"'
+
+      # Temp disable due to crazy variable expansion issues in bash.
+      #,
+      #  "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
       }
     end
 
