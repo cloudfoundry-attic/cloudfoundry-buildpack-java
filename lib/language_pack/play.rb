@@ -27,7 +27,7 @@ module LanguagePack
           copy_jpa_plugin
           installed_drivers << JPA_PLUGIN_JAR
         end
-        modify_start_script(installed_drivers << LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR)
+        modify_start_script(installed_drivers << LanguagePack::AutostagingHelpers::AUTORECONFIG_JAR)
       end
     end
 

@@ -156,7 +156,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
     it "copies autostaging jar to lib dir" do
       Dir.chdir(tmpdir) do
         subject
-        File.exists?("lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR}").should == true
+        File.exists?("lib/#{LanguagePack::AutostagingHelpers::AUTORECONFIG_JAR}").should == true
       end
     end
 
@@ -173,7 +173,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
 
     context "when play version is 2.0" do
       let(:start_script) { "exec java $* -cp \"`dirname $0`/lib/*\" play.core.server.NettyServer `dirname $0`" }
-      let(:expected_start_script) { "exec java $* -cp \"`dirname $0`/lib/*:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR}\" org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
+      let(:expected_start_script) { "exec java $* -cp \"`dirname $0`/lib/*:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTORECONFIG_JAR}\" org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
       include_examples "start script modification"
 
       it "adds JPA Plugin to the lib directory" do
@@ -193,7 +193,7 @@ describe LanguagePack::Play, type: :with_temp_dir do
 
     context "when play version is 2.1" do
       let(:start_script) { "exec java $* -cp $classpath play.core.server.NettyServer `dirname $0`" }
-      let(:expected_start_script) { "exec java $* -cp $classpath:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTOSTAGING_JAR} org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
+      let(:expected_start_script) { "exec java $* -cp $classpath:`dirname $0`/lib/#{LanguagePack::AutostagingHelpers::AUTORECONFIG_JAR} org.cloudfoundry.reconfiguration.play.Bootstrap `dirname $0`" }
       include_examples "start script modification"
 
       it "adds JPA Plugin to the lib directory if the app is using JPA" do
