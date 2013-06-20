@@ -81,7 +81,7 @@ describe LanguagePack::Grails, type: :with_temp_dir do
 
         it "should have the auto reconfiguration jar in the webapp lib path" do
           grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTORECONFIG_JAR)).should == true
         end
       end
 
@@ -94,7 +94,7 @@ describe LanguagePack::Grails, type: :with_temp_dir do
 
         it "should not configure autostaging" do
           grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTORECONFIG_JAR)).should == false
         end
       end
 
@@ -107,7 +107,7 @@ describe LanguagePack::Grails, type: :with_temp_dir do
 
         it "should not configure autostaging" do
           grails_pack.compile
-          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == false
+          File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTORECONFIG_JAR)).should == false
         end
       end
     end
@@ -131,7 +131,7 @@ describe LanguagePack::Grails, type: :with_temp_dir do
 
       it "should have the auto reconfiguration jar in the webapp lib path" do
         grails_pack.compile
-        File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTOSTAGING_JAR)).should == true
+        File.exist?(File.join(grails_pack.webapp_path, "WEB-INF", "lib", LanguagePack::Spring::AUTORECONFIG_JAR)).should == true
       end
     end
   end
