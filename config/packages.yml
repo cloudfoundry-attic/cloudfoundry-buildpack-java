@@ -5,7 +5,7 @@ openjdk:
   jre: openjdk-1.6.0_27.tar.gz
 - version: "1.7"
   full: openjdk7-u7-heroku-temaki-b30.tar.gz
-  jre: openjdk-1.7.0_21.tar.gz
+  jre: openjdk-1.7.0_25.tar.gz
 - version: "1.8"
   full: openjdk8-lambda-preview.tar.gz
   jre: openjdk-1.8.0_M7.tar.gz
