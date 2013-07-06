@@ -31,7 +31,10 @@
                connectionTimeout="20000" bindOnInit="false"/>
 
     <Engine name="Catalina" defaultHost="localhost">
-
+        <Valve className="org.apache.catalina.valves.RemoteIpValve"
+             proxiesHeader="x-forwarded-for"
+             protocolHeader="x-forwarded-proto"
+             portHeader="x-forwarded-port" />
       <Host name="localhost"  appBase="webapps"
             unpackWARs="true" autoDeploy="true">
       </Host>
