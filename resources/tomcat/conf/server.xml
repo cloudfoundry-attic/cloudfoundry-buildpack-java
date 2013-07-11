@@ -33,7 +33,7 @@
 
       <Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="x-forwarded-proto"/>
 
-      <Host name="localhost"  appBase="webapps"unpackWARs="true" autoDeploy="true">
+      <Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="true">
       </Host>
 
     </Engine>
