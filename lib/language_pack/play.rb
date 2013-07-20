@@ -7,7 +7,10 @@ module LanguagePack
     include LanguagePack::DatabaseHelpers
     include LanguagePack::AutostagingHelpers
 
-    JPA_PLUGIN_JAR = "play-jpa-plugin-0.6.6.jar"
+    JPA_PLUGIN_VERSION = "0.7.1"
+    JPA_PLUGIN_JAR = "play-jpa-plugin-#{JPA_PLUGIN_VERSION}.jar"
+    JPA_PLUGIN_REPO_URL = "https://s3.amazonaws.com/maven.springframework.org/milestone/org/cloudfoundry/play-jpa-plugin/#{JPA_PLUGIN_VERSION}"
+
 
     def self.use?
       Dir.glob("**/lib/play.*.jar").any?
@@ -56,7 +59,7 @@ module LanguagePack
 
     def copy_jpa_plugin
       FileUtils.chdir("lib") do
-        fetch_package JPA_PLUGIN_JAR
+        fetch_package(JPA_PLUGIN_JAR, JPA_PLUGIN_REPO_URL)        
       end
     end
 
