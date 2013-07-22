@@ -1,6 +1,6 @@
 module LanguagePack::AutostagingHelpers
 
-  AUTORECONFIG_VERSION = "0.6.8"
+  AUTORECONFIG_VERSION = "0.7.1"
   AUTORECONFIG_JAR = "auto-reconfiguration-#{AUTORECONFIG_VERSION}.jar"
   REPO_URL = "https://s3.amazonaws.com/maven.springframework.org/milestone/org/cloudfoundry/auto-reconfiguration/#{AUTORECONFIG_VERSION}"
 
